@@ -1,0 +1,1419 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>spec-sprint report</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --bg-card: #1a1d27;
+    --bg-hover: #222538;
+    --border: #2d3148;
+    --text: #e2e4f0;
+    --text-muted: #7b7f9e;
+    --accent: #6366f1;
+    --accent-hover: #818cf8;
+
+    --skill-frontend: #8b5cf6;
+    --skill-backend: #3b82f6;
+    --skill-fullstack: #06b6d4;
+    --skill-data: #f59e0b;
+    --skill-infra: #6b7280;
+    --skill-qa: #10b981;
+    --skill-design: #ec4899;
+
+    --pri-critical: #ef4444;
+    --pri-high: #f97316;
+    --pri-medium: #eab308;
+    --pri-low: #22c55e;
+
+    --pts-low: #22c55e;
+    --pts-mid: #f59e0b;
+    --pts-high: #ef4444;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+      "Helvetica Neue", Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--accent-hover); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  code, pre, .mono { font-family: ui-monospace, "SF Mono", Menlo, Monaco, Consolas, monospace; }
+
+  .container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 32px 80px;
+  }
+
+  /* Header */
+  .header {
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border);
+    padding: 24px 32px;
+    margin-bottom: 32px;
+  }
+  .header-inner {
+    max-width: 1280px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 32px;
+    flex-wrap: wrap;
+  }
+  .brand {
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: 12px;
+    color: var(--accent);
+    letter-spacing: 0.05em;
+    text-transform: lowercase;
+  }
+  .title {
+    font-size: 24px;
+    font-weight: 600;
+    margin: 4px 0 4px;
+    color: var(--text);
+  }
+  .subtitle {
+    color: var(--text-muted);
+    font-size: 12px;
+  }
+  .stats {
+    display: flex;
+    gap: 28px;
+  }
+  .stat {
+    text-align: right;
+  }
+  .stat-num {
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--accent);
+    line-height: 1;
+  }
+  .stat-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  /* Cards */
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin-bottom: 24px;
+  }
+  .card h2 {
+    margin: 0 0 12px;
+    font-size: 16px;
+    font-weight: 600;
+  }
+  .muted { color: var(--text-muted); }
+
+  /* Spec summary */
+  .spec-summary {
+    font-size: 15px;
+    line-height: 1.6;
+  }
+  .spec-toggle {
+    display: inline-block;
+    margin-top: 12px;
+    color: var(--accent-hover);
+    cursor: pointer;
+    font-size: 13px;
+  }
+  .spec-full {
+    display: none;
+    margin-top: 14px;
+    background: #0b0d14;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 14px;
+    max-height: 320px;
+    overflow: auto;
+    white-space: pre-wrap;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+  .spec-full.open { display: block; }
+
+  /* Warnings */
+  .warnings {
+    background: rgba(245, 158, 11, 0.08);
+    border: 1px solid rgba(245, 158, 11, 0.4);
+  }
+  .warnings h2 { color: #fbbf24; }
+  .warning-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(245, 158, 11, 0.15);
+    font-size: 13px;
+  }
+  .warning-row:last-child { border-bottom: 0; }
+  .warning-dismiss {
+    background: none;
+    border: 0;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 0 4px;
+  }
+  .warning-dismiss:hover { color: var(--text); }
+
+  /* Assumptions / Risks */
+  .ar-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 24px;
+  }
+  .ar-card {
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    padding: 16px 20px;
+  }
+  .ar-card.assumptions {
+    background: rgba(59, 130, 246, 0.06);
+    border-color: rgba(59, 130, 246, 0.3);
+  }
+  .ar-card.risks {
+    background: rgba(249, 115, 22, 0.06);
+    border-color: rgba(249, 115, 22, 0.3);
+  }
+  .ar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .ar-card.assumptions .ar-header { color: #93c5fd; }
+  .ar-card.risks .ar-header { color: #fdba74; }
+  .ar-list {
+    display: none;
+    margin: 12px 0 0;
+    padding-left: 20px;
+    font-size: 13px;
+    color: var(--text);
+  }
+  .ar-list.open { display: block; }
+  .ar-list li { margin: 4px 0; }
+
+  /* Sprint overview cards */
+  .sprint-overview {
+    display: flex;
+    gap: 16px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+    margin-bottom: 28px;
+  }
+  .sprint-card {
+    flex: 0 0 240px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    cursor: pointer;
+    transition: border-color 0.15s, transform 0.15s;
+  }
+  .sprint-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+  }
+  .sprint-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+  .sprint-card-title { font-weight: 600; font-size: 14px; }
+  .util-bar {
+    height: 6px;
+    background: #0b0d14;
+    border-radius: 3px;
+    overflow: hidden;
+    margin: 8px 0 6px;
+  }
+  .util-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.3s;
+  }
+  .util-text { font-size: 12px; color: var(--text-muted); margin-bottom: 10px; }
+  .skill-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+  .skill-dot {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .skill-dot::before {
+    content: '';
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--c, var(--text-muted));
+  }
+  .warn-badge {
+    display: inline-block;
+    background: var(--pri-critical);
+    color: #fff;
+    border-radius: 10px;
+    padding: 1px 7px;
+    font-size: 10px;
+    font-weight: 600;
+  }
+
+  /* Dependency graph */
+  .graph-card { padding: 20px 24px; }
+  .graph-subtitle {
+    color: var(--text-muted);
+    font-size: 12px;
+    margin-bottom: 12px;
+  }
+  .graph-svg-wrap {
+    width: 100%;
+    overflow-x: auto;
+    background: #0b0d14;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+  svg.dep-graph {
+    display: block;
+    min-height: 320px;
+  }
+  .col-header {
+    fill: var(--text-muted);
+    font-size: 11px;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .node-rect {
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  .node-text {
+    fill: var(--text);
+    font-size: 11px;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    pointer-events: none;
+  }
+  .node-title-text {
+    fill: var(--text);
+    font-size: 10px;
+    pointer-events: none;
+  }
+  .edge { transition: opacity 0.2s; }
+  .dim { opacity: 0.18; }
+
+  /* Sprint sections */
+  .sprint-section {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 24px;
+    overflow: hidden;
+  }
+  .sprint-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 22px;
+    cursor: pointer;
+    user-select: none;
+    background: #161924;
+    border-bottom: 1px solid var(--border);
+  }
+  .sprint-section-header:hover { background: var(--bg-hover); }
+  .sprint-section-title {
+    font-size: 16px;
+    font-weight: 600;
+  }
+  .sprint-section-stats {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+  .util-mini {
+    width: 100px;
+    height: 6px;
+    background: #0b0d14;
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .sprint-meta {
+    padding: 12px 22px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+  .sprint-warnings {
+    padding: 8px 22px;
+    color: #fbbf24;
+    background: rgba(245, 158, 11, 0.06);
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+  }
+  .sprint-warnings div { padding: 2px 0; }
+  .sprint-body { display: block; }
+  .sprint-body.collapsed { display: none; }
+
+  /* Tables */
+  table.tickets {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  table.tickets th, table.tickets td {
+    text-align: left;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+  table.tickets th {
+    color: var(--text-muted);
+    font-weight: 500;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    background: #161924;
+  }
+  table.tickets tr:hover td { background: rgba(99, 102, 241, 0.04); }
+
+  /* Badges */
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.6;
+  }
+  .id-badge {
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    background: rgba(99, 102, 241, 0.15);
+    color: var(--accent-hover);
+    border: 1px solid rgba(99, 102, 241, 0.4);
+    cursor: pointer;
+  }
+  .id-badge:hover { background: rgba(99, 102, 241, 0.3); }
+  .pts-badge { color: #0b0d14; }
+  .pts-low { background: var(--pts-low); }
+  .pts-mid { background: var(--pts-mid); }
+  .pts-high { background: var(--pts-high); }
+  .skill-badge { color: #fff; }
+  .skill-frontend { background: var(--skill-frontend); }
+  .skill-backend { background: var(--skill-backend); }
+  .skill-fullstack { background: var(--skill-fullstack); }
+  .skill-data { background: var(--skill-data); color: #1a1300; }
+  .skill-infra { background: var(--skill-infra); }
+  .skill-qa { background: var(--skill-qa); }
+  .skill-design { background: var(--skill-design); }
+  .pri-badge { color: #fff; }
+  .pri-critical { background: var(--pri-critical); }
+  .pri-high { background: var(--pri-high); }
+  .pri-medium { background: var(--pri-medium); color: #1a1300; }
+  .pri-low { background: var(--pri-low); color: #06210f; }
+
+  .title-cell {
+    min-width: 200px;
+    cursor: pointer;
+  }
+  .title-cell:hover { color: var(--accent-hover); }
+  .story-cell { max-width: 280px; color: var(--text-muted); cursor: help; }
+
+  .dep-chip {
+    display: inline-block;
+    margin: 1px 2px;
+    padding: 1px 6px;
+    border-radius: 8px;
+    background: rgba(99, 102, 241, 0.12);
+    border: 1px solid rgba(99, 102, 241, 0.3);
+    color: var(--accent-hover);
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: 10px;
+    cursor: pointer;
+  }
+  .dep-chip:hover { background: rgba(99, 102, 241, 0.25); }
+
+  .copy-btns {
+    display: flex;
+    gap: 4px;
+  }
+  .copy-btn {
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    color: var(--text);
+    border-radius: 6px;
+    padding: 5px 9px;
+    font-size: 11px;
+    cursor: pointer;
+    font-weight: 600;
+    height: 28px;
+    transition: all 0.15s;
+  }
+  .copy-btn:hover {
+    background: var(--bg-hover);
+    border-color: var(--accent);
+  }
+  .copy-btn.success {
+    background: var(--pri-low);
+    color: #06210f;
+    border-color: var(--pri-low);
+  }
+  .copy-btn.error {
+    background: var(--pri-critical);
+    color: #fff;
+    border-color: var(--pri-critical);
+  }
+
+  .sprint-footer-copy {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    padding: 14px 22px;
+    background: #161924;
+    border-top: 1px solid var(--border);
+  }
+  .copy-btn-large {
+    padding: 8px 14px;
+    height: auto;
+    font-size: 12px;
+  }
+
+  /* Modal */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 100;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 60px 20px;
+    overflow-y: auto;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    max-width: 640px;
+    width: 100%;
+    padding: 24px 28px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+  }
+  .modal-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+  .modal-header h3 {
+    margin: 0;
+    font-size: 18px;
+    flex: 1;
+  }
+  .modal-close {
+    background: none;
+    border: 0;
+    color: var(--text-muted);
+    font-size: 24px;
+    cursor: pointer;
+    line-height: 1;
+  }
+  .modal-close:hover { color: var(--text); }
+  .modal-row {
+    display: flex;
+    gap: 8px;
+    margin: 12px 0;
+    flex-wrap: wrap;
+  }
+  .modal-section {
+    margin: 16px 0;
+  }
+  .modal-section-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 6px;
+  }
+  .modal-user-story {
+    background: rgba(99, 102, 241, 0.08);
+    border-left: 3px solid var(--accent);
+    padding: 10px 14px;
+    border-radius: 4px;
+    font-style: italic;
+    color: var(--text);
+  }
+  .modal-ac { padding-left: 20px; margin: 8px 0; }
+  .modal-ac li { margin: 6px 0; }
+  .modal-rationale {
+    color: var(--text-muted);
+    font-style: italic;
+    font-size: 12px;
+  }
+  .modal-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 20px;
+  }
+  .modal-actions .copy-btn {
+    flex: 1;
+    height: auto;
+    padding: 10px;
+    font-size: 12px;
+  }
+
+  .footer {
+    margin-top: 60px;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 12px;
+  }
+  .footer div { margin: 4px 0; }
+</style>
+</head>
+<body>
+<script>
+SPEC_SPRINT_DATA_PLACEHOLDER
+</script>
+
+<header class="header">
+  <div class="header-inner">
+    <div>
+      <div class="brand">spec-sprint</div>
+      <h1 class="title" id="hdr-title">Sprint Plan</h1>
+      <div class="subtitle" id="hdr-subtitle"></div>
+    </div>
+    <div class="stats" id="hdr-stats"></div>
+  </div>
+</header>
+
+<div class="container">
+  <div id="summary-section"></div>
+  <div id="warnings-section"></div>
+  <div id="ar-section"></div>
+  <h2 style="margin:8px 0 16px;font-size:14px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;">Sprint overview</h2>
+  <div id="sprint-overview" class="sprint-overview"></div>
+  <div id="graph-section"></div>
+  <h2 style="margin:24px 0 16px;font-size:14px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;">Sprints</h2>
+  <div id="sprint-sections"></div>
+  <div id="footer-section" class="footer"></div>
+</div>
+
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal" id="modal" onclick="event.stopPropagation()"></div>
+</div>
+
+<script>
+(function() {
+  'use strict';
+
+  const SKILL_COLORS = {
+    frontend: '#8b5cf6',
+    backend: '#3b82f6',
+    fullstack: '#06b6d4',
+    data: '#f59e0b',
+    infra: '#6b7280',
+    qa: '#10b981',
+    design: '#ec4899',
+  };
+
+  function el(tag, attrs, ...children) {
+    const e = document.createElement(tag);
+    if (attrs) {
+      for (const k in attrs) {
+        if (k === 'class') e.className = attrs[k];
+        else if (k === 'html') e.innerHTML = attrs[k];
+        else if (k.startsWith('on')) e.addEventListener(k.slice(2), attrs[k]);
+        else e.setAttribute(k, attrs[k]);
+      }
+    }
+    for (const c of children) {
+      if (c == null) continue;
+      if (typeof c === 'string' || typeof c === 'number') e.appendChild(document.createTextNode(String(c)));
+      else e.appendChild(c);
+    }
+    return e;
+  }
+
+  function svgEl(tag, attrs) {
+    const e = document.createElementNS('http://www.w3.org/2000/svg', tag);
+    if (attrs) for (const k in attrs) e.setAttribute(k, attrs[k]);
+    return e;
+  }
+
+  function ptsClass(p) {
+    if (p <= 3) return 'pts-low';
+    if (p === 5) return 'pts-mid';
+    return 'pts-high';
+  }
+
+  function utilColor(pct) {
+    if (pct < 70) return '#f59e0b';
+    if (pct > 95) return '#ef4444';
+    return '#22c55e';
+  }
+
+  function truncate(s, n) {
+    if (!s) return '';
+    return s.length > n ? s.slice(0, n) + '...' : s;
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, c => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[c]));
+  }
+
+  // ---------- Render functions ----------
+  function renderHeader(d) {
+    const cfg = d.config;
+    const parts = [];
+    if (cfg.teamName) parts.push(cfg.teamName);
+    if (cfg.sprintName) parts.push(cfg.sprintName);
+    document.getElementById('hdr-title').textContent =
+      parts.length ? parts.join(' • ') : 'Sprint Plan';
+    const date = new Date(d.generatedAt).toLocaleString();
+    document.getElementById('hdr-subtitle').textContent =
+      'Generated ' + date + ' by spec-sprint v' + d.version;
+
+    const stats = document.getElementById('hdr-stats');
+    const ticketCount = d.decomposition.tickets.length;
+    const totalPoints = d.decomposition.totalPoints;
+    const sprintCount = d.sprintPlans.length;
+
+    [
+      [ticketCount, 'Tickets'],
+      [totalPoints, 'Points'],
+      [sprintCount, 'Sprints'],
+      [cfg.teamSize + ' @ ' + cfg.velocity, 'Team / Velocity'],
+    ].forEach(([num, label]) => {
+      const s = el('div', { class: 'stat' },
+        el('div', { class: 'stat-num' }, String(num)),
+        el('div', { class: 'stat-label' }, label),
+      );
+      stats.appendChild(s);
+    });
+  }
+
+  function renderSummary(d) {
+    const root = document.getElementById('summary-section');
+    const card = el('div', { class: 'card' },
+      el('h2', null, 'Spec summary'),
+      el('div', { class: 'spec-summary' }, d.decomposition.specSummary || '(no summary)'),
+    );
+    const toggle = el('span', { class: 'spec-toggle' }, 'View full spec →');
+    const full = el('div', { class: 'spec-full' }, d.specText);
+    toggle.addEventListener('click', () => {
+      full.classList.toggle('open');
+      toggle.textContent = full.classList.contains('open') ? 'Hide full spec ↑' : 'View full spec →';
+    });
+    card.appendChild(toggle);
+    card.appendChild(full);
+    root.appendChild(card);
+  }
+
+  function renderWarnings(d) {
+    const root = document.getElementById('warnings-section');
+    const all = [];
+    d.sprintPlans.forEach(p => {
+      p.warnings.forEach(w => all.push({ sprint: p.sprintNumber, text: w }));
+    });
+    if (!all.length) return;
+    const card = el('div', { class: 'card warnings' });
+    card.appendChild(el('h2', null, '⚠ Warnings (' + all.length + ')'));
+    all.forEach((w, i) => {
+      const row = el('div', { class: 'warning-row' },
+        el('div', null, 'Sprint ' + w.sprint + ': ' + w.text),
+      );
+      const x = el('button', { class: 'warning-dismiss', title: 'Dismiss' }, '×');
+      x.addEventListener('click', () => row.remove());
+      row.appendChild(x);
+      card.appendChild(row);
+    });
+    root.appendChild(card);
+  }
+
+  function renderAssumptionsRisks(d) {
+    const root = document.getElementById('ar-section');
+    const a = d.decomposition.assumptions || [];
+    const r = d.decomposition.risks || [];
+    if (!a.length && !r.length) return;
+
+    function makeCard(cls, title, items) {
+      const list = el('ul', { class: 'ar-list' });
+      items.forEach(it => list.appendChild(el('li', null, it)));
+      const header = el('div', { class: 'ar-header' },
+        el('span', null, title + ' (' + items.length + ')'),
+        el('span', null, '▾'),
+      );
+      header.addEventListener('click', () => list.classList.toggle('open'));
+      return el('div', { class: 'ar-card ' + cls }, header, list);
+    }
+
+    const grid = el('div', { class: 'ar-grid' });
+    grid.appendChild(makeCard('assumptions', 'Assumptions', a));
+    grid.appendChild(makeCard('risks', 'Risks', r));
+    root.appendChild(grid);
+  }
+
+  function renderSprintOverview(d) {
+    const root = document.getElementById('sprint-overview');
+    d.sprintPlans.forEach(p => {
+      const card = el('div', { class: 'sprint-card' });
+      const hdr = el('div', { class: 'sprint-card-header' },
+        el('div', { class: 'sprint-card-title' }, 'Sprint ' + p.sprintNumber),
+      );
+      if (p.warnings.length) {
+        hdr.appendChild(el('span', { class: 'warn-badge' }, String(p.warnings.length)));
+      }
+      card.appendChild(hdr);
+      const bar = el('div', { class: 'util-bar' });
+      const fill = el('div', { class: 'util-fill' });
+      fill.style.width = Math.min(100, p.utilizationPct) + '%';
+      fill.style.background = utilColor(p.utilizationPct);
+      bar.appendChild(fill);
+      card.appendChild(bar);
+      card.appendChild(el('div', { class: 'util-text' },
+        p.totalPoints + ' / ' + p.capacityPoints + ' pts (' + p.utilizationPct + '%)'));
+      const skills = el('div', { class: 'skill-row' });
+      Object.keys(p.skillBreakdown).forEach(s => {
+        const span = el('span', { class: 'skill-dot' }, s + ': ' + p.skillBreakdown[s]);
+        span.style.setProperty('--c', SKILL_COLORS[s] || '#888');
+        skills.appendChild(span);
+      });
+      card.appendChild(skills);
+      card.addEventListener('click', () => {
+        const t = document.getElementById('sprint-sec-' + p.sprintNumber);
+        if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+      root.appendChild(card);
+    });
+  }
+
+  // ---------- Dependency Graph (column per sprint) ----------
+  function renderDependencyGraph(d) {
+    const root = document.getElementById('graph-section');
+    const graph = d.dependencyGraph;
+    const tickets = d.decomposition.tickets;
+    const byId = {};
+    tickets.forEach(t => byId[t.id] = t);
+
+    const card = el('div', { class: 'card graph-card' });
+    card.appendChild(el('h2', null, 'Dependency graph'));
+    const cpTitles = graph.criticalPath.map(id => id).join(' → ');
+    const cpPts = graph.criticalPath.reduce((s, id) => s + (byId[id]?.storyPoints || 0), 0);
+    card.appendChild(el('div', { class: 'graph-subtitle' },
+      graph.criticalPath.length
+        ? 'Critical path: ' + cpTitles + ' (' + cpPts + ' pts minimum)'
+        : 'No dependencies between tickets.'));
+
+    // Group nodes by sprint
+    const sprintNums = [...new Set(graph.nodes.map(n => n.sprint).filter(x => x != null))].sort((a, b) => a - b);
+    const hasUnassigned = graph.nodes.some(n => n.sprint == null);
+    const cols = sprintNums.map(s => ({ key: s, label: 'Sprint ' + s, nodes: [] }));
+    if (hasUnassigned) cols.push({ key: null, label: 'Unassigned', nodes: [] });
+
+    graph.nodes.forEach(n => {
+      const c = cols.find(c => c.key === n.sprint);
+      if (c) c.nodes.push(n);
+    });
+    cols.forEach(c => {
+      c.nodes.sort((a, b) => {
+        if (a.isCriticalPath !== b.isCriticalPath) return a.isCriticalPath ? -1 : 1;
+        return b.points - a.points;
+      });
+    });
+
+    const NODE_W = 140;
+    const NODE_H = 48;
+    const COL_GAP = 60;
+    const ROW_GAP = 16;
+    const MARGIN_X = 30;
+    const MARGIN_TOP = 40;
+
+    const colCount = Math.max(1, cols.length);
+    const maxRows = Math.max(1, ...cols.map(c => c.nodes.length));
+    const width = MARGIN_X * 2 + colCount * NODE_W + (colCount - 1) * COL_GAP;
+    const height = MARGIN_TOP + maxRows * (NODE_H + ROW_GAP) + 30;
+
+    const wrap = el('div', { class: 'graph-svg-wrap' });
+    const svg = svgEl('svg', {
+      class: 'dep-graph',
+      width: String(width),
+      height: String(height),
+      viewBox: '0 0 ' + width + ' ' + height,
+    });
+
+    // arrowhead defs
+    const defs = svgEl('defs');
+    [['arrow', '#6366f1', '0.6'], ['arrow-cp', '#ef4444', '0.85']].forEach(([id, color, op]) => {
+      const m = svgEl('marker', {
+        id, viewBox: '0 0 10 10', refX: '8', refY: '5',
+        markerWidth: '8', markerHeight: '8', orient: 'auto-start-reverse',
+      });
+      const p = svgEl('path', { d: 'M 0 0 L 10 5 L 0 10 z', fill: color, 'fill-opacity': op });
+      m.appendChild(p);
+      defs.appendChild(m);
+    });
+    svg.appendChild(defs);
+
+    // column headers
+    cols.forEach((c, i) => {
+      const x = MARGIN_X + i * (NODE_W + COL_GAP) + NODE_W / 2;
+      const t = svgEl('text', { class: 'col-header', x: String(x), y: '20', 'text-anchor': 'middle' });
+      t.textContent = c.label;
+      svg.appendChild(t);
+    });
+
+    // node positions
+    const positions = {};
+    cols.forEach((c, ci) => {
+      c.nodes.forEach((n, ri) => {
+        const x = MARGIN_X + ci * (NODE_W + COL_GAP);
+        const y = MARGIN_TOP + ri * (NODE_H + ROW_GAP);
+        positions[n.id] = { x, y, w: NODE_W, h: NODE_H, node: n };
+      });
+    });
+
+    // edges
+    const edgeEls = [];
+    const cpSet = new Set(graph.criticalPath);
+    function isCpEdge(from, to) {
+      const i = graph.criticalPath.indexOf(from);
+      return i >= 0 && graph.criticalPath[i + 1] === to;
+    }
+    graph.edges.forEach(e => {
+      const a = positions[e.from];
+      const b = positions[e.to];
+      if (!a || !b) return;
+      const x1 = a.x + a.w;
+      const y1 = a.y + a.h / 2;
+      const x2 = b.x;
+      const y2 = b.y + b.h / 2;
+      const dx = Math.max(40, (x2 - x1) / 2);
+      const cp = isCpEdge(e.from, e.to);
+      const path = svgEl('path', {
+        d: 'M ' + x1 + ' ' + y1 + ' C ' + (x1 + dx) + ' ' + y1 + ', ' + (x2 - dx) + ' ' + y2 + ', ' + x2 + ' ' + y2,
+        fill: 'none',
+        stroke: cp ? '#ef4444' : '#6366f1',
+        'stroke-opacity': cp ? '0.8' : '0.6',
+        'stroke-width': cp ? '2' : '1.2',
+        'marker-end': 'url(#' + (cp ? 'arrow-cp' : 'arrow') + ')',
+        class: 'edge',
+        'data-from': e.from,
+        'data-to': e.to,
+      });
+      svg.appendChild(path);
+      edgeEls.push(path);
+    });
+
+    // nodes
+    const nodeEls = [];
+    Object.values(positions).forEach(p => {
+      const n = p.node;
+      const color = SKILL_COLORS[n.skillArea] || '#888';
+      const g = svgEl('g', { 'data-id': n.id, class: 'node-group' });
+      const rect = svgEl('rect', {
+        class: 'node-rect',
+        x: String(p.x),
+        y: String(p.y),
+        width: String(p.w),
+        height: String(p.h),
+        rx: '6',
+        fill: color,
+        'fill-opacity': '0.2',
+        stroke: n.isCriticalPath ? '#ef4444' : color,
+        'stroke-width': n.isCriticalPath ? '2' : '1',
+      });
+      g.appendChild(rect);
+      const idText = svgEl('text', {
+        class: 'node-text',
+        x: String(p.x + 8),
+        y: String(p.y + 18),
+      });
+      idText.textContent = n.id + ' · ' + n.points + 'pt';
+      g.appendChild(idText);
+      const titleText = svgEl('text', {
+        class: 'node-title-text',
+        x: String(p.x + 8),
+        y: String(p.y + 34),
+      });
+      titleText.textContent = truncate(n.title, 18);
+      g.appendChild(titleText);
+
+      g.addEventListener('mouseenter', () => highlightNode(n.id));
+      g.addEventListener('mouseleave', () => clearHighlight());
+      g.addEventListener('click', (ev) => {
+        ev.stopPropagation();
+        openTicketModal(n.id);
+      });
+
+      svg.appendChild(g);
+      nodeEls.push(g);
+    });
+
+    function highlightNode(id) {
+      const connected = new Set([id]);
+      graph.edges.forEach(e => {
+        if (e.from === id) connected.add(e.to);
+        if (e.to === id) connected.add(e.from);
+      });
+      nodeEls.forEach(g => {
+        if (connected.has(g.getAttribute('data-id'))) g.classList.remove('dim');
+        else g.classList.add('dim');
+      });
+      edgeEls.forEach(p => {
+        if (p.getAttribute('data-from') === id || p.getAttribute('data-to') === id) {
+          p.classList.remove('dim');
+        } else {
+          p.classList.add('dim');
+        }
+      });
+    }
+    function clearHighlight() {
+      nodeEls.forEach(g => g.classList.remove('dim'));
+      edgeEls.forEach(p => p.classList.remove('dim'));
+    }
+
+    svg.addEventListener('click', clearHighlight);
+    wrap.appendChild(svg);
+    card.appendChild(wrap);
+    root.appendChild(card);
+  }
+
+  // ---------- Sprint sections (tables) ----------
+  function renderSprintSections(d) {
+    const root = document.getElementById('sprint-sections');
+    const byId = {};
+    d.decomposition.tickets.forEach(t => byId[t.id] = t);
+
+    d.sprintPlans.forEach(p => {
+      const sec = el('div', { class: 'sprint-section', id: 'sprint-sec-' + p.sprintNumber });
+
+      const fillColor = utilColor(p.utilizationPct);
+      const utilBar = el('div', { class: 'util-mini' });
+      const utilFill = el('div', { class: 'util-fill' });
+      utilFill.style.width = Math.min(100, p.utilizationPct) + '%';
+      utilFill.style.background = fillColor;
+      utilBar.appendChild(utilFill);
+
+      const stats = el('div', { class: 'sprint-section-stats' },
+        el('span', null, p.totalPoints + ' / ' + p.capacityPoints + ' pts (' + p.utilizationPct + '%)'),
+        utilBar,
+      );
+      const header = el('div', { class: 'sprint-section-header' },
+        el('div', { class: 'sprint-section-title' }, 'Sprint ' + p.sprintNumber),
+        stats,
+      );
+      sec.appendChild(header);
+
+      const meta = el('div', { class: 'sprint-meta' });
+      Object.keys(p.skillBreakdown).forEach(s => {
+        const span = el('span', null, s.charAt(0).toUpperCase() + s.slice(1) + ': ' + p.skillBreakdown[s] + 'pts');
+        span.style.color = SKILL_COLORS[s] || 'var(--text-muted)';
+        meta.appendChild(span);
+      });
+      sec.appendChild(meta);
+
+      if (p.warnings.length) {
+        const w = el('div', { class: 'sprint-warnings' });
+        p.warnings.forEach(msg => w.appendChild(el('div', null, '⚠ ' + msg)));
+        sec.appendChild(w);
+      }
+
+      const body = el('div', { class: 'sprint-body' });
+
+      const table = el('table', { class: 'tickets' });
+      const thead = el('thead', null,
+        el('tr', null,
+          el('th', null, 'ID'),
+          el('th', null, 'Title'),
+          el('th', null, 'User Story'),
+          el('th', null, 'Points'),
+          el('th', null, 'Skill'),
+          el('th', null, 'Priority'),
+          el('th', null, 'Blocked By'),
+          el('th', null, 'Copy'),
+        ));
+      table.appendChild(thead);
+      const tbody = el('tbody');
+
+      p.ticketIds.forEach(id => {
+        const t = byId[id];
+        if (!t) return;
+        const tr = el('tr');
+
+        const idBadge = el('span', { class: 'badge id-badge' }, t.id);
+        idBadge.addEventListener('click', () => openTicketModal(t.id));
+        tr.appendChild(el('td', null, idBadge));
+
+        const titleCell = el('td', { class: 'title-cell' }, t.title);
+        titleCell.addEventListener('click', () => openTicketModal(t.id));
+        tr.appendChild(titleCell);
+
+        const storyCell = el('td', { class: 'story-cell', title: t.userStory },
+          truncate(t.userStory, 60));
+        storyCell.addEventListener('click', () => openTicketModal(t.id));
+        tr.appendChild(storyCell);
+
+        tr.appendChild(el('td', null,
+          el('span', { class: 'badge pts-badge ' + ptsClass(t.storyPoints) }, String(t.storyPoints))));
+        tr.appendChild(el('td', null,
+          el('span', { class: 'badge skill-badge skill-' + t.skillArea }, t.skillArea)));
+        tr.appendChild(el('td', null,
+          el('span', { class: 'badge pri-badge pri-' + t.priority }, t.priority)));
+
+        const depCell = el('td');
+        if (t.blockedBy.length) {
+          t.blockedBy.forEach(b => {
+            const chip = el('span', { class: 'dep-chip', title: 'Jump to ' + b }, b);
+            chip.addEventListener('click', () => openTicketModal(b));
+            depCell.appendChild(chip);
+          });
+        } else {
+          depCell.textContent = '—';
+          depCell.style.color = 'var(--text-muted)';
+        }
+        tr.appendChild(depCell);
+
+        const copyCell = el('td');
+        const btns = el('div', { class: 'copy-btns' });
+        btns.appendChild(makeCopyBtn('J', 'Copy as Jira', () => formatJira(t)));
+        btns.appendChild(makeCopyBtn('L', 'Copy as Linear', () => formatLinear(t)));
+        btns.appendChild(makeCopyBtn('P', 'Copy as plain text', () => formatPlain(t)));
+        copyCell.appendChild(btns);
+        tr.appendChild(copyCell);
+
+        tbody.appendChild(tr);
+      });
+
+      table.appendChild(tbody);
+      body.appendChild(table);
+
+      // sprint-level copy
+      const footer = el('div', { class: 'sprint-footer-copy' });
+      const ticketObjs = p.ticketIds.map(id => byId[id]).filter(Boolean);
+      footer.appendChild(makeCopyBtnLarge('📋 All tickets — Jira format', () => formatSprintJira(p, ticketObjs)));
+      footer.appendChild(makeCopyBtnLarge('📋 Markdown table', () => formatSprintMarkdown(p, ticketObjs)));
+      footer.appendChild(makeCopyBtnLarge('📋 Slack summary', () => formatSprintSlack(p, ticketObjs, d.dependencyGraph)));
+      body.appendChild(footer);
+
+      sec.appendChild(body);
+
+      header.addEventListener('click', () => body.classList.toggle('collapsed'));
+
+      root.appendChild(sec);
+    });
+  }
+
+  function makeCopyBtn(label, title, getText) {
+    const btn = el('button', { class: 'copy-btn', title }, label);
+    btn.addEventListener('click', (ev) => {
+      ev.stopPropagation();
+      doCopy(btn, getText());
+    });
+    return btn;
+  }
+  function makeCopyBtnLarge(label, getText) {
+    const btn = el('button', { class: 'copy-btn copy-btn-large' }, label);
+    btn.addEventListener('click', () => doCopy(btn, getText()));
+    return btn;
+  }
+
+  function doCopy(btn, text) {
+    copyToClipboard(text).then(ok => {
+      const orig = btn.textContent;
+      btn.textContent = ok ? '✓' : '✗';
+      btn.classList.add(ok ? 'success' : 'error');
+      setTimeout(() => {
+        btn.textContent = orig;
+        btn.classList.remove('success', 'error');
+      }, 1500);
+    });
+  }
+
+  function copyToClipboard(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      return navigator.clipboard.writeText(text).then(() => true).catch(() => fallback(text));
+    }
+    return Promise.resolve(fallback(text));
+  }
+  function fallback(text) {
+    try {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      const ok = document.execCommand('copy');
+      document.body.removeChild(ta);
+      return ok;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  // ---------- Format helpers ----------
+  function acText(ac) {
+    return ac.map(a => '• Given ' + a.given + ', when ' + a.when + ', then ' + a.then).join('\n');
+  }
+  function acLinear(ac) {
+    return ac.map(a => '- [ ] Given ' + a.given + ', when ' + a.when + ', then ' + a.then).join('\n');
+  }
+  function acNumbered(ac) {
+    return ac.map((a, i) => '  ' + (i + 1) + '. Given ' + a.given + ', when ' + a.when + ', then ' + a.then).join('\n');
+  }
+
+  function formatJira(t) {
+    const lines = [];
+    lines.push(t.title);
+    lines.push('');
+    lines.push('User Story');
+    lines.push(t.userStory);
+    lines.push('');
+    lines.push('Description');
+    lines.push(t.description);
+    lines.push('');
+    lines.push('Acceptance Criteria');
+    lines.push(acText(t.acceptanceCriteria));
+    lines.push('');
+    lines.push('Story Points: ' + t.storyPoints);
+    lines.push('Skill Area: ' + t.skillArea);
+    lines.push('Priority: ' + t.priority);
+    if (t.blockedBy.length) lines.push('Blocked By: ' + t.blockedBy.join(', '));
+    lines.push('Estimate rationale: ' + t.rationale);
+    return lines.join('\n');
+  }
+
+  function formatLinear(t) {
+    const lines = [];
+    lines.push(t.title);
+    lines.push('');
+    lines.push(t.userStory);
+    lines.push('');
+    lines.push('Context');
+    lines.push(t.description);
+    lines.push('');
+    lines.push('Acceptance Criteria');
+    lines.push(acLinear(t.acceptanceCriteria));
+    lines.push('');
+    lines.push('Points: ' + t.storyPoints + '  Area: ' + t.skillArea + '  Priority: ' + t.priority);
+    if (t.blockedBy.length) lines.push('Blocked by: ' + t.blockedBy.join(', '));
+    return lines.join('\n');
+  }
+
+  function formatPlain(t) {
+    const lines = [];
+    lines.push('[' + t.id + '] ' + t.title);
+    lines.push('Story: ' + t.userStory);
+    lines.push('Points: ' + t.storyPoints + ' | Skill: ' + t.skillArea + ' | Priority: ' + t.priority);
+    if (t.blockedBy.length) lines.push('Blocked by: ' + t.blockedBy.join(', '));
+    lines.push('Acceptance Criteria:');
+    lines.push(acNumbered(t.acceptanceCriteria));
+    return lines.join('\n');
+  }
+
+  function formatSprintJira(plan, tickets) {
+    return tickets.map(formatJira).join('\n---\n');
+  }
+
+  function formatSprintMarkdown(plan, tickets) {
+    const lines = [];
+    lines.push('| ID | Title | Points | Skill | Priority | Blocked By |');
+    lines.push('|---|---|---|---|---|---|');
+    tickets.forEach(t => {
+      lines.push('| ' + t.id + ' | ' + t.title + ' | ' + t.storyPoints + ' | ' + t.skillArea + ' | ' + t.priority + ' | ' + (t.blockedBy.length ? t.blockedBy.join(', ') : '—') + ' |');
+    });
+    return lines.join('\n');
+  }
+
+  function formatSprintSlack(plan, tickets, graph) {
+    const lines = [];
+    lines.push('*Sprint ' + plan.sprintNumber + ' Plan* — ' + plan.totalPoints + ' pts / ' + plan.capacityPoints + ' capacity (' + plan.utilizationPct + '%)');
+    lines.push('');
+    tickets.forEach(t => {
+      lines.push('• [' + t.id + '] ' + t.title + ' (' + t.storyPoints + 'pts, ' + t.skillArea + ')');
+    });
+    if (plan.criticalPathIds && plan.criticalPathIds.length) {
+      const titles = plan.criticalPathIds.map(id => {
+        const t = tickets.find(x => x.id === id);
+        return t ? t.title : id;
+      }).join(' → ');
+      lines.push('');
+      lines.push('_Critical path: ' + titles + '_');
+    }
+    if (plan.warnings.length) {
+      lines.push('_⚠ ' + plan.warnings.join(' | ') + '_');
+    }
+    return lines.join('\n');
+  }
+
+  // ---------- Modal ----------
+  function openTicketModal(id) {
+    const data = window.SPEC_SPRINT_DATA;
+    const t = data.decomposition.tickets.find(x => x.id === id);
+    if (!t) return;
+    const modal = document.getElementById('modal');
+    modal.innerHTML = '';
+
+    const epic = data.decomposition.epics.find(e => e.id === t.epicId);
+
+    const head = el('div', { class: 'modal-header' },
+      el('span', { class: 'badge id-badge' }, t.id),
+      el('h3', null, t.title),
+    );
+    const close = el('button', { class: 'modal-close', title: 'Close' }, '×');
+    close.addEventListener('click', closeModal);
+    head.appendChild(close);
+    modal.appendChild(head);
+
+    if (epic) {
+      modal.appendChild(el('div', { class: 'muted', style: 'font-size:12px;margin-bottom:8px;' },
+        epic.id + ' — ' + epic.title));
+    }
+
+    const row = el('div', { class: 'modal-row' });
+    if (t.sprint != null) row.appendChild(el('span', { class: 'badge id-badge' }, 'Sprint ' + t.sprint));
+    row.appendChild(el('span', { class: 'badge pts-badge ' + ptsClass(t.storyPoints) }, t.storyPoints + ' pts'));
+    row.appendChild(el('span', { class: 'badge skill-badge skill-' + t.skillArea }, t.skillArea));
+    row.appendChild(el('span', { class: 'badge pri-badge pri-' + t.priority }, t.priority));
+    modal.appendChild(row);
+
+    modal.appendChild(el('div', { class: 'modal-section' },
+      el('div', { class: 'modal-section-label' }, 'User story'),
+      el('div', { class: 'modal-user-story' }, t.userStory),
+    ));
+    modal.appendChild(el('div', { class: 'modal-section' },
+      el('div', { class: 'modal-section-label' }, 'Description'),
+      el('div', null, t.description),
+    ));
+
+    const acList = el('ol', { class: 'modal-ac' });
+    t.acceptanceCriteria.forEach(a => {
+      acList.appendChild(el('li', null, 'Given ' + a.given + ', when ' + a.when + ', then ' + a.then));
+    });
+    modal.appendChild(el('div', { class: 'modal-section' },
+      el('div', { class: 'modal-section-label' }, 'Acceptance criteria'),
+      acList,
+    ));
+
+    if (t.blockedBy.length) {
+      const chips = el('div');
+      t.blockedBy.forEach(b => {
+        const c = el('span', { class: 'dep-chip' }, b);
+        c.addEventListener('click', () => openTicketModal(b));
+        chips.appendChild(c);
+      });
+      modal.appendChild(el('div', { class: 'modal-section' },
+        el('div', { class: 'modal-section-label' }, 'Blocked by'),
+        chips,
+      ));
+    }
+    if (t.blocks && t.blocks.length) {
+      const chips = el('div');
+      t.blocks.forEach(b => {
+        const c = el('span', { class: 'dep-chip' }, b);
+        c.addEventListener('click', () => openTicketModal(b));
+        chips.appendChild(c);
+      });
+      modal.appendChild(el('div', { class: 'modal-section' },
+        el('div', { class: 'modal-section-label' }, 'Blocks'),
+        chips,
+      ));
+    }
+    if (t.rationale) {
+      modal.appendChild(el('div', { class: 'modal-section' },
+        el('div', { class: 'modal-section-label' }, 'Estimate rationale'),
+        el('div', { class: 'modal-rationale' }, t.rationale),
+      ));
+    }
+
+    const actions = el('div', { class: 'modal-actions' });
+    actions.appendChild(makeCopyBtn('Copy for Jira', 'Copy for Jira', () => formatJira(t)));
+    actions.appendChild(makeCopyBtn('Copy for Linear', 'Copy for Linear', () => formatLinear(t)));
+    actions.appendChild(makeCopyBtn('Copy Plain Text', 'Copy plain text', () => formatPlain(t)));
+    modal.appendChild(actions);
+
+    document.getElementById('modal-overlay').classList.add('open');
+  }
+
+  function closeModal() {
+    document.getElementById('modal-overlay').classList.remove('open');
+  }
+
+  // expose
+  window.openTicketModal = openTicketModal;
+
+  // ---------- Footer ----------
+  function renderFooter(d) {
+    const root = document.getElementById('footer-section');
+    root.appendChild(el('div', null,
+      'Generated by spec-sprint v' + d.version + ' • github.com/YOUR_GITHUB_USERNAME/spec-sprint'));
+    root.appendChild(el('div', null,
+      'Estimates are starting points for team discussion, not commitments.'));
+    root.appendChild(el('div', null, new Date(d.generatedAt).toLocaleString()));
+  }
+
+  // ---------- Boot ----------
+  document.addEventListener('DOMContentLoaded', function () {
+    const data = window.SPEC_SPRINT_DATA;
+    if (!data) {
+      document.body.innerHTML = '<div style="padding:40px;color:#fff">No data</div>';
+      return;
+    }
+    renderHeader(data);
+    renderSummary(data);
+    renderWarnings(data);
+    renderAssumptionsRisks(data);
+    renderSprintOverview(data);
+    renderDependencyGraph(data);
+    renderSprintSections(data);
+    renderFooter(data);
+
+    document.getElementById('modal-overlay').addEventListener('click', function (e) {
+      if (e.target.id === 'modal-overlay') closeModal();
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') closeModal();
+    });
+  });
+})();
+</script>
+</body>
+</html>

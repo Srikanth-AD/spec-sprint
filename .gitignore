@@ -1,0 +1,7 @@
+node_modules/
+dist/
+*.html
+!templates/report.html
+.env
+.DS_Store
+~/.spec-sprint/
