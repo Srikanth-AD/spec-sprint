@@ -33,6 +33,31 @@ spec-sprint generate ./my-feature-spec.md --team 6 --velocity 44
 
 The HTML report opens automatically in your browser.
 
+## See it in action
+
+Two example specs and the reports they produced are checked into this
+repo. Open the HTML files locally to click around — copy buttons,
+dependency graph hover, ticket modal, and all.
+
+| Spec | Team / Velocity | Output | Result |
+|---|---|---|---|
+| [`examples/sso-auth.md`](examples/sso-auth.md) | 4 engineers @ 32 pts | [`examples/output/sso-auth.html`](examples/output/sso-auth.html) | 20 tickets · 7 epics · 3 sprints · 77 pts |
+| [`examples/guest-checkout.md`](examples/guest-checkout.md) | 6 engineers @ 44 pts | [`examples/output/guest-checkout.html`](examples/output/guest-checkout.html) | 28 tickets · 8 epics · 3 sprints · 109 pts |
+
+To regenerate them yourself:
+
+```bash
+spec-sprint generate examples/sso-auth.md \
+  --team 4 --velocity 32 \
+  --team-name "Auth Squad" --sprint-name "Q2 Sprint 1" \
+  --output examples/output/sso-auth.html
+
+spec-sprint generate examples/guest-checkout.md \
+  --team 6 --velocity 44 \
+  --team-name "Checkout Team" --sprint-name "Q2 Sprint 1" \
+  --output examples/output/guest-checkout.html
+```
+
 ## What the report contains
 
 - **Header stats**: ticket count, total points, sprint count, team capacity

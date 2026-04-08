@@ -2,6 +2,7 @@ node_modules/
 dist/
 *.html
 !templates/report.html
+!examples/output/*.html
 .env
 .DS_Store
 ~/.spec-sprint/

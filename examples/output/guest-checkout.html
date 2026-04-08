@@ -1,0 +1,1419 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>spec-sprint report</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --bg-card: #1a1d27;
+    --bg-hover: #222538;
+    --border: #2d3148;
+    --text: #e2e4f0;
+    --text-muted: #7b7f9e;
+    --accent: #6366f1;
+    --accent-hover: #818cf8;
+
+    --skill-frontend: #8b5cf6;
+    --skill-backend: #3b82f6;
+    --skill-fullstack: #06b6d4;
+    --skill-data: #f59e0b;
+    --skill-infra: #6b7280;
+    --skill-qa: #10b981;
+    --skill-design: #ec4899;
+
+    --pri-critical: #ef4444;
+    --pri-high: #f97316;
+    --pri-medium: #eab308;
+    --pri-low: #22c55e;
+
+    --pts-low: #22c55e;
+    --pts-mid: #f59e0b;
+    --pts-high: #ef4444;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+      "Helvetica Neue", Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--accent-hover); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  code, pre, .mono { font-family: ui-monospace, "SF Mono", Menlo, Monaco, Consolas, monospace; }
+
+  .container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 32px 80px;
+  }
+
+  /* Header */
+  .header {
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border);
+    padding: 24px 32px;
+    margin-bottom: 32px;
+  }
+  .header-inner {
+    max-width: 1280px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 32px;
+    flex-wrap: wrap;
+  }
+  .brand {
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: 12px;
+    color: var(--accent);
+    letter-spacing: 0.05em;
+    text-transform: lowercase;
+  }
+  .title {
+    font-size: 24px;
+    font-weight: 600;
+    margin: 4px 0 4px;
+    color: var(--text);
+  }
+  .subtitle {
+    color: var(--text-muted);
+    font-size: 12px;
+  }
+  .stats {
+    display: flex;
+    gap: 28px;
+  }
+  .stat {
+    text-align: right;
+  }
+  .stat-num {
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--accent);
+    line-height: 1;
+  }
+  .stat-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  /* Cards */
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin-bottom: 24px;
+  }
+  .card h2 {
+    margin: 0 0 12px;
+    font-size: 16px;
+    font-weight: 600;
+  }
+  .muted { color: var(--text-muted); }
+
+  /* Spec summary */
+  .spec-summary {
+    font-size: 15px;
+    line-height: 1.6;
+  }
+  .spec-toggle {
+    display: inline-block;
+    margin-top: 12px;
+    color: var(--accent-hover);
+    cursor: pointer;
+    font-size: 13px;
+  }
+  .spec-full {
+    display: none;
+    margin-top: 14px;
+    background: #0b0d14;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 14px;
+    max-height: 320px;
+    overflow: auto;
+    white-space: pre-wrap;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+  .spec-full.open { display: block; }
+
+  /* Warnings */
+  .warnings {
+    background: rgba(245, 158, 11, 0.08);
+    border: 1px solid rgba(245, 158, 11, 0.4);
+  }
+  .warnings h2 { color: #fbbf24; }
+  .warning-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(245, 158, 11, 0.15);
+    font-size: 13px;
+  }
+  .warning-row:last-child { border-bottom: 0; }
+  .warning-dismiss {
+    background: none;
+    border: 0;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 0 4px;
+  }
+  .warning-dismiss:hover { color: var(--text); }
+
+  /* Assumptions / Risks */
+  .ar-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 24px;
+  }
+  .ar-card {
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    padding: 16px 20px;
+  }
+  .ar-card.assumptions {
+    background: rgba(59, 130, 246, 0.06);
+    border-color: rgba(59, 130, 246, 0.3);
+  }
+  .ar-card.risks {
+    background: rgba(249, 115, 22, 0.06);
+    border-color: rgba(249, 115, 22, 0.3);
+  }
+  .ar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .ar-card.assumptions .ar-header { color: #93c5fd; }
+  .ar-card.risks .ar-header { color: #fdba74; }
+  .ar-list {
+    display: none;
+    margin: 12px 0 0;
+    padding-left: 20px;
+    font-size: 13px;
+    color: var(--text);
+  }
+  .ar-list.open { display: block; }
+  .ar-list li { margin: 4px 0; }
+
+  /* Sprint overview cards */
+  .sprint-overview {
+    display: flex;
+    gap: 16px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+    margin-bottom: 28px;
+  }
+  .sprint-card {
+    flex: 0 0 240px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    cursor: pointer;
+    transition: border-color 0.15s, transform 0.15s;
+  }
+  .sprint-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+  }
+  .sprint-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+  .sprint-card-title { font-weight: 600; font-size: 14px; }
+  .util-bar {
+    height: 6px;
+    background: #0b0d14;
+    border-radius: 3px;
+    overflow: hidden;
+    margin: 8px 0 6px;
+  }
+  .util-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.3s;
+  }
+  .util-text { font-size: 12px; color: var(--text-muted); margin-bottom: 10px; }
+  .skill-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+  .skill-dot {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .skill-dot::before {
+    content: '';
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--c, var(--text-muted));
+  }
+  .warn-badge {
+    display: inline-block;
+    background: var(--pri-critical);
+    color: #fff;
+    border-radius: 10px;
+    padding: 1px 7px;
+    font-size: 10px;
+    font-weight: 600;
+  }
+
+  /* Dependency graph */
+  .graph-card { padding: 20px 24px; }
+  .graph-subtitle {
+    color: var(--text-muted);
+    font-size: 12px;
+    margin-bottom: 12px;
+  }
+  .graph-svg-wrap {
+    width: 100%;
+    overflow-x: auto;
+    background: #0b0d14;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+  svg.dep-graph {
+    display: block;
+    min-height: 320px;
+  }
+  .col-header {
+    fill: var(--text-muted);
+    font-size: 11px;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .node-rect {
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  .node-text {
+    fill: var(--text);
+    font-size: 11px;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    pointer-events: none;
+  }
+  .node-title-text {
+    fill: var(--text);
+    font-size: 10px;
+    pointer-events: none;
+  }
+  .edge { transition: opacity 0.2s; }
+  .dim { opacity: 0.18; }
+
+  /* Sprint sections */
+  .sprint-section {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 24px;
+    overflow: hidden;
+  }
+  .sprint-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 22px;
+    cursor: pointer;
+    user-select: none;
+    background: #161924;
+    border-bottom: 1px solid var(--border);
+  }
+  .sprint-section-header:hover { background: var(--bg-hover); }
+  .sprint-section-title {
+    font-size: 16px;
+    font-weight: 600;
+  }
+  .sprint-section-stats {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+  .util-mini {
+    width: 100px;
+    height: 6px;
+    background: #0b0d14;
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .sprint-meta {
+    padding: 12px 22px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+  .sprint-warnings {
+    padding: 8px 22px;
+    color: #fbbf24;
+    background: rgba(245, 158, 11, 0.06);
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+  }
+  .sprint-warnings div { padding: 2px 0; }
+  .sprint-body { display: block; }
+  .sprint-body.collapsed { display: none; }
+
+  /* Tables */
+  table.tickets {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  table.tickets th, table.tickets td {
+    text-align: left;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+  table.tickets th {
+    color: var(--text-muted);
+    font-weight: 500;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    background: #161924;
+  }
+  table.tickets tr:hover td { background: rgba(99, 102, 241, 0.04); }
+
+  /* Badges */
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.6;
+  }
+  .id-badge {
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    background: rgba(99, 102, 241, 0.15);
+    color: var(--accent-hover);
+    border: 1px solid rgba(99, 102, 241, 0.4);
+    cursor: pointer;
+  }
+  .id-badge:hover { background: rgba(99, 102, 241, 0.3); }
+  .pts-badge { color: #0b0d14; }
+  .pts-low { background: var(--pts-low); }
+  .pts-mid { background: var(--pts-mid); }
+  .pts-high { background: var(--pts-high); }
+  .skill-badge { color: #fff; }
+  .skill-frontend { background: var(--skill-frontend); }
+  .skill-backend { background: var(--skill-backend); }
+  .skill-fullstack { background: var(--skill-fullstack); }
+  .skill-data { background: var(--skill-data); color: #1a1300; }
+  .skill-infra { background: var(--skill-infra); }
+  .skill-qa { background: var(--skill-qa); }
+  .skill-design { background: var(--skill-design); }
+  .pri-badge { color: #fff; }
+  .pri-critical { background: var(--pri-critical); }
+  .pri-high { background: var(--pri-high); }
+  .pri-medium { background: var(--pri-medium); color: #1a1300; }
+  .pri-low { background: var(--pri-low); color: #06210f; }
+
+  .title-cell {
+    min-width: 200px;
+    cursor: pointer;
+  }
+  .title-cell:hover { color: var(--accent-hover); }
+  .story-cell { max-width: 280px; color: var(--text-muted); cursor: help; }
+
+  .dep-chip {
+    display: inline-block;
+    margin: 1px 2px;
+    padding: 1px 6px;
+    border-radius: 8px;
+    background: rgba(99, 102, 241, 0.12);
+    border: 1px solid rgba(99, 102, 241, 0.3);
+    color: var(--accent-hover);
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: 10px;
+    cursor: pointer;
+  }
+  .dep-chip:hover { background: rgba(99, 102, 241, 0.25); }
+
+  .copy-btns {
+    display: flex;
+    gap: 4px;
+  }
+  .copy-btn {
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    color: var(--text);
+    border-radius: 6px;
+    padding: 5px 9px;
+    font-size: 11px;
+    cursor: pointer;
+    font-weight: 600;
+    height: 28px;
+    transition: all 0.15s;
+  }
+  .copy-btn:hover {
+    background: var(--bg-hover);
+    border-color: var(--accent);
+  }
+  .copy-btn.success {
+    background: var(--pri-low);
+    color: #06210f;
+    border-color: var(--pri-low);
+  }
+  .copy-btn.error {
+    background: var(--pri-critical);
+    color: #fff;
+    border-color: var(--pri-critical);
+  }
+
+  .sprint-footer-copy {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    padding: 14px 22px;
+    background: #161924;
+    border-top: 1px solid var(--border);
+  }
+  .copy-btn-large {
+    padding: 8px 14px;
+    height: auto;
+    font-size: 12px;
+  }
+
+  /* Modal */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 100;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 60px 20px;
+    overflow-y: auto;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    max-width: 640px;
+    width: 100%;
+    padding: 24px 28px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+  }
+  .modal-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+  .modal-header h3 {
+    margin: 0;
+    font-size: 18px;
+    flex: 1;
+  }
+  .modal-close {
+    background: none;
+    border: 0;
+    color: var(--text-muted);
+    font-size: 24px;
+    cursor: pointer;
+    line-height: 1;
+  }
+  .modal-close:hover { color: var(--text); }
+  .modal-row {
+    display: flex;
+    gap: 8px;
+    margin: 12px 0;
+    flex-wrap: wrap;
+  }
+  .modal-section {
+    margin: 16px 0;
+  }
+  .modal-section-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 6px;
+  }
+  .modal-user-story {
+    background: rgba(99, 102, 241, 0.08);
+    border-left: 3px solid var(--accent);
+    padding: 10px 14px;
+    border-radius: 4px;
+    font-style: italic;
+    color: var(--text);
+  }
+  .modal-ac { padding-left: 20px; margin: 8px 0; }
+  .modal-ac li { margin: 6px 0; }
+  .modal-rationale {
+    color: var(--text-muted);
+    font-style: italic;
+    font-size: 12px;
+  }
+  .modal-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 20px;
+  }
+  .modal-actions .copy-btn {
+    flex: 1;
+    height: auto;
+    padding: 10px;
+    font-size: 12px;
+  }
+
+  .footer {
+    margin-top: 60px;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 12px;
+  }
+  .footer div { margin: 4px 0; }
+</style>
+</head>
+<body>
+<script>
+window.SPEC_SPRINT_DATA = {"specSource":"/Users/srikanthad/Documents/GitHub/spec-sprint/examples/guest-checkout.md","specText":"# Guest Checkout\n\n## Overview\n\nOur e-commerce platform currently requires every shopper to create an\naccount before they can complete a purchase. Analytics show ~38% of\nshoppers abandon their cart at the registration step. Product wants\nus to introduce a guest checkout path that lets users complete a\npurchase without creating an account, while preserving our existing\naccount-based flow for returning customers.\n\nThe goal: reduce checkout abandonment by 20% within one quarter of\nlaunch.\n\n## User Flow\n\n1. Shopper browses the catalog and adds items to cart (existing flow,\n   no changes).\n2. Shopper opens cart and clicks \"Checkout\".\n3. Checkout entry page offers two paths:\n   - \"Sign in\" (existing)\n   - \"Continue as guest\" (new — primary CTA)\n4. Guest provides email, shipping address, and payment.\n5. Order is placed; confirmation page shows order number.\n6. Confirmation email is sent immediately, followed by a tracking\n   email when the order ships.\n\n## Payment\n\nPayments go through Stripe via Stripe Elements. We never store full\ncard numbers — only the last 4 digits and expiry, plus the Stripe\npayment method ID. The integration must be PCI DSS compliant; rely\non Stripe-hosted fields, do not pass raw PAN through our servers.\n\nFailed payments should allow up to 3 retries on the same checkout\nsession before the cart is reset. After a successful payment but\nbefore order creation, we capture the payment intent so funds are\nheld immediately.\n\n## Email\n\n- Order confirmation email: sent within 30 seconds of order creation.\n  Includes order number, line items, total, shipping address, and\n  estimated delivery window.\n- Shipping notification: sent when the order ships, includes carrier\n  tracking link.\n- Both emails should render correctly in Gmail, Outlook, and Apple Mail.\n\n## Mobile\n\nThe guest checkout flow must work on iOS Safari and Android Chrome\nmobile browsers. Touch targets must be at least 44px. The payment\nform should support Apple Pay and Google Pay where available.\n\n## Edge Cases\n\n- Cart timeout: a guest cart should expire after 30 minutes of\n  inactivity. Show a clear message and let the shopper restart.\n- Failed payment: clear error messaging, do not reset the cart on\n  the first failure.\n- Address validation: validate against a postal API; show inline\n  errors for invalid postcodes.\n- Duplicate orders: idempotency key on the order creation endpoint\n  prevents double-charges if the user hits \"Place Order\" twice.\n\n## Out of Scope\n\n- Loyalty points (guests do not earn points)\n- Saved addresses (no account = no saved data)\n- Order history page for guests (one-shot tracking link only)\n- International shipping (US only for v1)\n\n## Non-Functional Requirements\n\n- Checkout pages must load in under 2 seconds (LCP) on a 4G connection.\n- PCI DSS compliant — no raw card data on our servers.\n- Order creation endpoint must be idempotent.\n- All payment events must be logged for audit (without storing PAN).\n\n## Success Metric\n\nReduce checkout abandonment rate by 20% in the first quarter after launch,\nmeasured as `cart_started → order_placed` conversion in our analytics.\n","config":{"teamSize":6,"velocity":44,"sprintDays":10,"sprintName":"Q2 Sprint 1","teamName":"Checkout Team","skills":["frontend","backend","fullstack","data","infra","qa","design"],"anthropicApiKey":"","model":"claude-sonnet-4-6"},"decomposition":{"specSummary":"A guest checkout flow is being added to an existing e-commerce platform to allow shoppers to complete purchases without creating an account. The flow covers checkout entry routing, email/address/payment collection via Stripe Elements, order confirmation, and transactional emails. The primary success metric is a 20% reduction in cart-to-order abandonment within one quarter of launch.","epics":[{"id":"EP-1","title":"Checkout Entry & Routing","description":"Introduce the checkout entry page that offers both the existing sign-in path and the new guest path, routing shoppers appropriately.","ticketIds":["SS-1","SS-2","SS-3","SS-4","SS-5"],"totalPoints":16,"sprintSpan":1},{"id":"EP-2","title":"Guest Session & Cart Management","description":"Implement server-side guest session tracking, cart persistence, 30-minute inactivity timeout, and retry-limit enforcement.","ticketIds":["SS-6","SS-7","SS-8"],"totalPoints":10,"sprintSpan":1},{"id":"EP-3","title":"Guest Checkout Form — Address & Validation","description":"Build the multi-step guest checkout form covering email, shipping address capture, and real-time postal API validation.","ticketIds":["SS-9","SS-10","SS-11"],"totalPoints":12,"sprintSpan":1},{"id":"EP-4","title":"Payment Integration (Stripe)","description":"Integrate Stripe Elements with Apple Pay / Google Pay support, payment intent capture, retry logic, and PCI-compliant audit logging.","ticketIds":["SS-12","SS-13","SS-14","SS-15","SS-16"],"totalPoints":24,"sprintSpan":1},{"id":"EP-5","title":"Order Creation & Idempotency","description":"Build the idempotent order creation endpoint that persists order records, stores safe payment metadata, and triggers post-order events.","ticketIds":["SS-17","SS-18","SS-19"],"totalPoints":13,"sprintSpan":1},{"id":"EP-6","title":"Transactional Emails","description":"Design and send order confirmation and shipping notification emails that render correctly across major clients.","ticketIds":["SS-20","SS-21","SS-22","SS-23"],"totalPoints":11,"sprintSpan":1},{"id":"EP-7","title":"Mobile Optimisation & Accessibility","description":"Ensure all guest checkout UI meets mobile usability standards, touch target requirements, and cross-browser compatibility on iOS Safari and Android Chrome.","ticketIds":["SS-24","SS-25"],"totalPoints":10,"sprintSpan":1},{"id":"EP-8","title":"Analytics & Observability","description":"Instrument the guest checkout funnel to measure cart-started → order-placed conversion and surface payment/error events for audit.","ticketIds":["SS-26","SS-27","SS-28"],"totalPoints":13,"sprintSpan":1}],"tickets":[{"id":"SS-1","type":"story","epicId":"EP-1","title":"Design checkout entry page (sign-in vs guest CTA)","userStory":"As a UX designer, I want high-fidelity designs for the checkout entry page so that engineers have a clear, approved visual spec before implementation begins.","description":"Produce desktop and mobile designs for the checkout entry page showing the 'Sign in' and 'Continue as guest' paths. 'Continue as guest' should be the primary CTA. Designs must cover both breakpoints and all interactive states (hover, focus, error).","acceptanceCriteria":[{"given":"The designer has the product spec and brand guidelines","when":"The designs are reviewed by product and engineering","then":"Both 'Sign in' and 'Continue as guest' CTAs are clearly differentiated and the guest path is visually primary"},{"given":"Mobile designs are produced","when":"Reviewed against WCAG 2.1 AA contrast and touch target guidelines","then":"All interactive elements meet 44px minimum touch target and contrast requirements"}],"storyPoints":3,"skillArea":"design","priority":"high","blockedBy":[],"blocks":["SS-2"],"sprint":1,"rationale":"One designer, one clear scope — desktop + mobile designs with states is roughly 1.5 days of focused work."},{"id":"SS-2","type":"story","epicId":"EP-1","title":"Build checkout entry page UI with routing","userStory":"As a shopper, I want to choose between signing in or continuing as a guest when I click Checkout so that I can complete my purchase without creating an account.","description":"Implement the checkout entry page based on approved designs (SS-1). 'Sign in' redirects to the existing auth flow. 'Continue as guest' initiates a new guest session and routes to the guest checkout form. The page must be server-side rendered for LCP performance.","acceptanceCriteria":[{"given":"A shopper has items in their cart and clicks Checkout","when":"The checkout entry page loads","then":"Both 'Sign in' and 'Continue as guest' options are visible and functional"},{"given":"A shopper clicks 'Continue as guest'","when":"The button is activated","then":"A guest session is created server-side and the shopper is routed to the guest checkout form"},{"given":"A shopper clicks 'Sign in'","when":"The button is activated","then":"The shopper is redirected to the existing authenticated checkout flow"}],"storyPoints":3,"skillArea":"fullstack","priority":"high","blockedBy":["SS-1","SS-7"],"blocks":["SS-24"],"sprint":1,"rationale":"Straightforward page with routing logic; depends on session model (SS-7) but the UI shell is roughly 1.5 days."},{"id":"SS-3","type":"story","epicId":"EP-1","title":"Design guest checkout multi-step form","userStory":"As a UX designer, I want approved designs for each step of the guest checkout form so that engineers have a clear spec for the email, address, and payment screens.","description":"Produce desktop and mobile designs for each guest checkout step: (1) email capture, (2) shipping address with inline validation states, (3) payment form with Stripe Elements, Apple Pay, and Google Pay buttons, (4) order review/confirmation. Include error states and the cart-timeout warning modal.","acceptanceCriteria":[{"given":"The designer references the product spec and Stripe Elements design guidelines","when":"Designs are reviewed by product and engineering","then":"All four form steps, inline validation states, and the cart-timeout modal are covered at both breakpoints"},{"given":"Payment step designs are reviewed","when":"Checked against Stripe branding requirements","then":"Stripe Elements placeholders and Apple Pay / Google Pay button placements conform to Stripe's usage guidelines"}],"storyPoints":5,"skillArea":"design","priority":"high","blockedBy":[],"blocks":["SS-8","SS-9","SS-11","SS-13"],"sprint":1,"rationale":"Four distinct steps, error states, and two wallet-pay button placements across two breakpoints is roughly 2.5 days of design work."},{"id":"SS-4","type":"story","epicId":"EP-1","title":"Design order confirmation page","userStory":"As a UX designer, I want approved designs for the post-purchase confirmation page so that engineers can implement the order summary display.","description":"Design the guest order confirmation page showing order number, line items, total, shipping address, and a message informing the shopper to check their email. Include the mobile layout.","acceptanceCriteria":[{"given":"An order has just been placed","when":"The confirmation page design is reviewed","then":"Order number, line item summary, total, shipping address, and email-sent notice are all present"},{"given":"The mobile layout is reviewed","when":"Assessed against 44px touch target and readability standards","then":"The page is legible and all interactive elements meet touch target requirements"}],"storyPoints":2,"skillArea":"design","priority":"medium","blockedBy":[],"blocks":["SS-19"],"sprint":2,"rationale":"A single informational page with no complex interaction states — approximately one day of design work."},{"id":"SS-5","type":"story","epicId":"EP-1","title":"Design email templates (confirmation and shipping)","userStory":"As a UX designer, I want approved HTML email designs for order confirmation and shipping notification so that engineers can code templates that render correctly in Gmail, Outlook, and Apple Mail.","description":"Produce two email template designs: (1) order confirmation including order number, line items, total, shipping address, and estimated delivery window; (2) shipping notification with carrier tracking link. Both must be table-based layouts compatible with Outlook's rendering engine.","acceptanceCriteria":[{"given":"The email designs are completed","when":"Reviewed against the spec","then":"All required content elements are present in both templates and designs are marked as Outlook-safe (table layout)"},{"given":"Both templates are reviewed on mobile","when":"Assessed against 14px minimum font size for mobile email","then":"Designs are legible on mobile viewports without horizontal scrolling"}],"storyPoints":3,"skillArea":"design","priority":"medium","blockedBy":[],"blocks":["SS-20","SS-21"],"sprint":2,"rationale":"Two distinct email templates with cross-client constraints adds up to roughly 1.5 days."},{"id":"SS-6","type":"story","epicId":"EP-2","title":"Define guest session and cart data model","userStory":"As a backend engineer, I want a clear data model for guest sessions and their associated carts so that session state can be persisted and expired correctly.","description":"Design and document the guest session schema: session token, cart items, email (nullable until provided), shipping address (nullable), payment attempt count, last-activity timestamp, and expiry. This model underpins all subsequent guest checkout backend work and must be reviewed before any migration is written.","acceptanceCriteria":[{"given":"The data model document is written","when":"Reviewed by the lead backend engineer","then":"All required fields are present, field types are specified, and the expiry/inactivity strategy is described"},{"given":"The model is finalised","when":"Cross-referenced against the order creation requirements","then":"All fields needed to hydrate an order from a guest session are accounted for"}],"storyPoints":2,"skillArea":"backend","priority":"high","blockedBy":[],"blocks":["SS-7","SS-10","SS-17"],"sprint":1,"rationale":"Schema design and internal review — roughly one day; must complete before any migration or session API work starts."},{"id":"SS-7","type":"story","epicId":"EP-2","title":"Implement guest session creation and persistence","userStory":"As a backend engineer, I want a guest session to be created and stored when a shopper chooses guest checkout so that their progress is maintained across the checkout steps.","description":"Create the database migration and session-management service for guest sessions per the approved data model (SS-6). The session token should be a cryptographically random UUID stored in an HttpOnly cookie. Session records are written to the database; in-memory caching (e.g., Redis) may be layered on top if the team already operates Redis.","acceptanceCriteria":[{"given":"A shopper clicks 'Continue as guest'","when":"The server handles the request","then":"A guest session record is created in the database and the session token is returned as an HttpOnly cookie"},{"given":"Subsequent checkout requests include the session cookie","when":"The server validates the token","then":"The correct session record is loaded and available for the request handler"},{"given":"A session record is loaded","when":"The last-activity timestamp is checked","then":"Sessions older than 30 minutes of inactivity are treated as expired and return a 410 Gone response"}],"storyPoints":5,"skillArea":"backend","priority":"high","blockedBy":["SS-6"],"blocks":["SS-2","SS-8","SS-9","SS-11","SS-12","SS-15"],"sprint":1,"rationale":"Migration, service layer, cookie handling, and expiry logic is approximately 2.5 days of backend work."},{"id":"SS-8","type":"story","epicId":"EP-2","title":"Implement cart inactivity timeout UI and recovery flow","userStory":"As a shopper, I want to be clearly informed when my guest cart has expired due to inactivity so that I understand why I need to start over rather than experiencing a silent failure.","description":"Detect an expired session (410 response from any checkout API call, or a client-side 30-minute idle timer) and display the cart-timeout modal from the approved designs (SS-3). The modal should explain the cart has expired and offer a CTA to return to the cart/catalog.","acceptanceCriteria":[{"given":"A guest session has been inactive for 30 minutes","when":"The shopper attempts any checkout action","then":"The server returns 410 Gone and the UI displays the cart-timeout modal with a clear explanation"},{"given":"The cart-timeout modal is displayed","when":"The shopper clicks the restart CTA","then":"They are redirected to the cart page and the expired session cookie is cleared"}],"storyPoints":3,"skillArea":"fullstack","priority":"medium","blockedBy":["SS-7","SS-3"],"blocks":["SS-27"],"sprint":2,"rationale":"Client-side idle detection, modal rendering, and session clearing is roughly 1.5 days of fullstack work."},{"id":"SS-9","type":"story","epicId":"EP-3","title":"Build email capture step","userStory":"As a guest shopper, I want to enter my email address at the start of checkout so that I receive my order confirmation and can be contacted about my order.","description":"Implement the email capture form step. Validate format client-side (RFC 5322 basic check) and persist the email to the guest session via a PATCH API call. The email must be stored normalised (lowercase, trimmed) in the session record.","acceptanceCriteria":[{"given":"A guest shopper is on the email capture step","when":"They enter a valid email and proceed","then":"The email is persisted to the guest session and the shopper advances to the address step"},{"given":"A guest shopper enters an invalid email format","when":"They attempt to proceed","then":"An inline validation error is displayed and the shopper cannot advance"}],"storyPoints":2,"skillArea":"fullstack","priority":"high","blockedBy":["SS-7","SS-3"],"blocks":["SS-24"],"sprint":2,"rationale":"Simple form step with client validation and a single PATCH call — approximately one day."},{"id":"SS-10","type":"story","epicId":"EP-3","title":"Integrate postal address validation API","userStory":"As a backend engineer, I want a server-side wrapper around a postal validation API so that address inputs can be validated against real US postal data before an order is placed.","description":"Integrate a US postal validation API (e.g., USPS or a third-party such as SmartyStreets — see assumptions). Build a thin internal service that accepts address fields and returns a validation result with standardised address or field-level errors. This service is called by the address form API endpoint.","acceptanceCriteria":[{"given":"Valid US address fields are passed to the validation service","when":"The service calls the postal API","then":"A standardised, validated address is returned"},{"given":"An invalid postcode is passed to the validation service","when":"The service calls the postal API","then":"A field-level error identifying the invalid postcode is returned"},{"given":"The postal API is unreachable","when":"The service times out after a configurable threshold","then":"The service returns a graceful degradation flag so the UI can allow the user to proceed with a warning"}],"storyPoints":5,"skillArea":"backend","priority":"high","blockedBy":["SS-6"],"blocks":["SS-11"],"sprint":1,"rationale":"Third-party API integration with error mapping, timeout handling, and graceful degradation is roughly 2.5 days."},{"id":"SS-11","type":"story","epicId":"EP-3","title":"Build shipping address form with inline validation","userStory":"As a guest shopper, I want to enter and validate my US shipping address with real-time feedback so that I can correct any errors before placing my order.","description":"Implement the shipping address form step using approved designs (SS-3). On submit, call the address validation API endpoint backed by SS-10. Display field-level inline errors for invalid postcodes or unrecognised addresses. On success, persist the validated address to the guest session.","acceptanceCriteria":[{"given":"A guest shopper completes the address form with a valid US address","when":"They submit the form","then":"The validated address is persisted to the session and the shopper advances to the payment step"},{"given":"A guest shopper submits an invalid postcode","when":"The validation API returns an error","then":"An inline error message is shown beneath the postcode field and the shopper cannot advance"},{"given":"The postal validation API is unavailable","when":"The form is submitted","then":"A non-blocking warning is shown and the shopper can proceed with their entered address"}],"storyPoints":5,"skillArea":"fullstack","priority":"high","blockedBy":["SS-10","SS-3","SS-7"],"blocks":["SS-24"],"sprint":1,"rationale":"Multi-field form with async validation, inline error rendering, and session persistence is roughly 2.5 days."},{"id":"SS-12","type":"story","epicId":"EP-4","title":"Create Stripe PaymentIntent on session initialisation","userStory":"As a backend engineer, I want a Stripe PaymentIntent created when a guest session transitions to the payment step so that we can capture funds immediately upon successful payment.","description":"When the guest session reaches the payment step, call the Stripe API to create a PaymentIntent with the cart total. Store the PaymentIntent ID in the guest session. Use the idempotency key pattern so duplicate calls return the same intent. The PaymentIntent should be created in capture-later mode (manual capture).","acceptanceCriteria":[{"given":"A guest session has a valid cart total and shipping address","when":"The payment step is initialised","then":"A Stripe PaymentIntent is created in manual-capture mode and its ID is stored in the guest session"},{"given":"The payment step initialisation endpoint is called twice for the same session","when":"The idempotency key is reused","then":"The same PaymentIntent ID is returned and no duplicate intent is created in Stripe"}],"storyPoints":3,"skillArea":"backend","priority":"high","blockedBy":["SS-7"],"blocks":["SS-13","SS-15","SS-16"],"sprint":1,"rationale":"Stripe SDK call, idempotency key wiring, and session update is approximately 1.5 days."},{"id":"SS-13","type":"story","epicId":"EP-4","title":"Implement Stripe Elements payment form","userStory":"As a guest shopper, I want to enter my card details using a secure hosted payment form so that my card data is handled safely and I can complete my purchase.","description":"Mount Stripe Elements on the payment step using the client secret from the PaymentIntent (SS-12). Implement card element with the approved styling from SS-3. Handle confirmCardPayment, surface Stripe error messages inline, and increment the retry counter on failure. Do not relay raw card data through our servers at any point.","acceptanceCriteria":[{"given":"A guest shopper is on the payment step with a valid PaymentIntent client secret","when":"The page loads","then":"The Stripe Elements card field is rendered and functional"},{"given":"A shopper submits a valid card","when":"Stripe confirms the payment","then":"The frontend receives a succeeded status and advances to order creation"},{"given":"A shopper submits a declined card","when":"Stripe returns a payment error","then":"An inline error message is displayed, the cart is not reset, and the retry counter is incremented"}],"storyPoints":8,"skillArea":"frontend","priority":"high","blockedBy":["SS-12","SS-3"],"blocks":["SS-14","SS-24"],"sprint":1,"rationale":"Stripe Elements mounting, styling, error handling, and retry counter logic across a complex UI step is approximately 4 days."},{"id":"SS-14","type":"story","epicId":"EP-4","title":"Implement Apple Pay and Google Pay via Stripe Payment Request Button","userStory":"As a guest shopper on a mobile device, I want to pay with Apple Pay or Google Pay so that I can complete checkout faster without typing my card details.","description":"Add the Stripe Payment Request Button element alongside the card form. Detect availability client-side and show the appropriate wallet button (Apple Pay on iOS Safari, Google Pay on Android Chrome) above the card form. On successful wallet payment, follow the same confirmation flow as card payment.","acceptanceCriteria":[{"given":"A guest shopper is on the payment step on an Apple Pay-capable device","when":"The page loads","then":"The Apple Pay button is displayed above the card form"},{"given":"A guest shopper completes Apple Pay or Google Pay authentication","when":"The payment is confirmed by Stripe","then":"The frontend advances to order creation in the same way as a card payment"},{"given":"A device does not support any wallet payment method","when":"The payment step loads","then":"No wallet button is displayed and only the card form is shown"}],"storyPoints":5,"skillArea":"frontend","priority":"medium","blockedBy":["SS-13"],"blocks":["SS-24","SS-27"],"sprint":2,"rationale":"Payment Request Button integration and device-capability detection is roughly 2.5 days, building on the Stripe Elements work."},{"id":"SS-15","type":"story","epicId":"EP-4","title":"Enforce payment retry limit and cart reset","userStory":"As a backend engineer, I want the system to enforce a maximum of 3 payment retries per guest session so that abuse is limited and the cart is reset cleanly after the limit is exceeded.","description":"Track the payment attempt count in the guest session. On each failed payment attempt, increment the counter. When the counter reaches 3, invalidate the guest session and return a specific error code to the frontend instructing it to clear the cart. Successful payments reset the counter.","acceptanceCriteria":[{"given":"A guest has failed payment twice","when":"They submit a third payment attempt that also fails","then":"The session is invalidated, a 402 with error code RETRY_LIMIT_EXCEEDED is returned, and the frontend redirects the shopper to the cart-reset state"},{"given":"A guest fails payment once and then succeeds","when":"The successful payment is processed","then":"The retry counter is not considered and order creation proceeds normally"}],"storyPoints":3,"skillArea":"backend","priority":"high","blockedBy":["SS-7","SS-12"],"blocks":["SS-18","SS-27"],"sprint":2,"rationale":"Counter logic in the session service plus a new error response path is approximately 1.5 days."},{"id":"SS-16","type":"story","epicId":"EP-4","title":"Log payment events for audit (without PAN)","userStory":"As a compliance engineer, I want all Stripe payment events logged with safe metadata so that we have a complete audit trail without ever storing raw card data.","description":"Subscribe to Stripe webhook events (payment_intent.succeeded, payment_intent.payment_failed, charge.refunded). Write an append-only audit log entry for each event containing: event type, PaymentIntent ID, last4, card brand, amount, currency, timestamp, and order ID (once linked). Never log full card number or CVV.","acceptanceCriteria":[{"given":"A Stripe payment_intent.succeeded webhook is received","when":"The event is processed","then":"An audit log entry is written with PaymentIntent ID, last4, brand, amount, timestamp, and no PAN"},{"given":"A Stripe payment_intent.payment_failed webhook is received","when":"The event is processed","then":"An audit log entry is written with the failure reason and no PAN"},{"given":"A Stripe webhook is received with an invalid signature","when":"The signature is verified","then":"The event is rejected with a 400 and an alert is raised"}],"storyPoints":5,"skillArea":"backend","priority":"high","blockedBy":["SS-12"],"blocks":["SS-18","SS-28"],"sprint":1,"rationale":"Webhook endpoint, signature verification, and append-only audit log with multiple event types is roughly 2.5 days."},{"id":"SS-17","type":"story","epicId":"EP-5","title":"Define order data model for guest orders","userStory":"As a backend engineer, I want a clear data model for guest orders so that order records can be persisted without requiring a user account foreign key.","description":"Design and document the guest order schema. It must support: guest email, shipping address snapshot, line items snapshot, total, currency, Stripe PaymentIntent ID, last4, card brand, order status, idempotency key, and created/updated timestamps. User ID should be nullable to support guest orders.","acceptanceCriteria":[{"given":"The data model is designed","when":"Reviewed by the lead backend engineer","then":"All required fields are present, user_id is nullable, and the idempotency key field is unique-indexed"},{"given":"The model is cross-referenced against the confirmation email requirements","when":"Reviewed","then":"All fields needed to populate the confirmation email template are present"}],"storyPoints":2,"skillArea":"backend","priority":"high","blockedBy":["SS-6"],"blocks":["SS-18"],"sprint":2,"rationale":"Schema design and review for a well-scoped domain object is approximately one day."},{"id":"SS-18","type":"story","epicId":"EP-5","title":"Implement idempotent order creation endpoint","userStory":"As a backend engineer, I want the order creation endpoint to be idempotent so that double-submits or network retries never result in duplicate charges or duplicate orders.","description":"Build POST /orders for guest checkout. The endpoint accepts the guest session token, captures the Stripe PaymentIntent (converting authorisation to charge), persists the order record using the idempotency key, and returns the created order. If the idempotency key already exists, return the existing order with 200. Use a database-level unique constraint on the idempotency key.","acceptanceCriteria":[{"given":"A valid guest session with a confirmed PaymentIntent","when":"POST /orders is called","then":"The PaymentIntent is captured, an order record is created, and the order is returned with a 201 status"},{"given":"POST /orders is called twice with the same idempotency key","when":"The second request is processed","then":"The existing order is returned with 200 and no second capture is made against Stripe"},{"given":"The PaymentIntent capture fails","when":"The endpoint handles the Stripe error","then":"No order record is created and a 402 error with a descriptive message is returned"}],"storyPoints":8,"skillArea":"backend","priority":"high","blockedBy":["SS-17","SS-15","SS-16"],"blocks":["SS-19","SS-22","SS-23"],"sprint":2,"rationale":"Idempotency handling, Stripe capture, database transaction safety, and error paths is approximately 4 days of careful backend work."},{"id":"SS-19","type":"story","epicId":"EP-5","title":"Build order confirmation page","userStory":"As a guest shopper, I want to see a confirmation page with my order number and summary after placing my order so that I have immediate proof of purchase.","description":"Implement the order confirmation page using approved designs (SS-4). The page receives the order ID and renders order number, line items, total, and shipping address from the order API. Include a message informing the shopper that a confirmation email has been sent.","acceptanceCriteria":[{"given":"An order has been successfully created","when":"The shopper is redirected to the confirmation page","then":"The order number, line items, total, and shipping address are all displayed"},{"given":"A shopper navigates directly to a confirmation URL without a valid order","when":"The page renders","then":"A 404 or redirect to the homepage is shown"}],"storyPoints":3,"skillArea":"fullstack","priority":"medium","blockedBy":["SS-18","SS-4"],"blocks":["SS-24","SS-26","SS-27"],"sprint":2,"rationale":"Data-fetching page with straightforward rendering — approximately 1.5 days."},{"id":"SS-20","type":"story","epicId":"EP-6","title":"Code order confirmation email template","userStory":"As a guest shopper, I want to receive an order confirmation email within 30 seconds of placing my order so that I have a record of my purchase.","description":"Code the HTML email template from the approved design (SS-5) using table-based layout. The template must accept: order number, line items array, total, shipping address, and estimated delivery window. Test rendering in Gmail, Outlook 2016+, and Apple Mail using a tool such as Litmus or Email on Acid.","acceptanceCriteria":[{"given":"The template is rendered with valid order data","when":"Previewed in Gmail, Outlook 2016, and Apple Mail","then":"All content sections render correctly with no broken layout or missing content"},{"given":"The template is rendered on a mobile viewport","when":"Previewed in mobile Gmail and Apple Mail","then":"Text is legible, images scale correctly, and there is no horizontal scrolling"}],"storyPoints":3,"skillArea":"frontend","priority":"medium","blockedBy":["SS-5"],"blocks":["SS-22"],"sprint":2,"rationale":"Table-based HTML email coding with cross-client testing is roughly 1.5 days."},{"id":"SS-21","type":"story","epicId":"EP-6","title":"Code shipping notification email template","userStory":"As a guest shopper, I want to receive a shipping notification email with a tracking link when my order ships so that I can track my delivery.","description":"Code the HTML shipping notification template from the approved design (SS-5). The template accepts: order number, carrier name, and tracking URL. Tracking URL must be rendered as a prominent CTA button. Apply the same cross-client compatibility standards as the confirmation template.","acceptanceCriteria":[{"given":"The template is rendered with valid shipping data","when":"Previewed in Gmail, Outlook 2016, and Apple Mail","then":"Order number, carrier name, and tracking link CTA render correctly in all three clients"},{"given":"The tracking URL is present in the template data","when":"Rendered","then":"The CTA links directly to the correct carrier tracking page"}],"storyPoints":2,"skillArea":"frontend","priority":"medium","blockedBy":["SS-5"],"blocks":["SS-23"],"sprint":3,"rationale":"Simpler template with fewer data fields than the confirmation email — approximately one day."},{"id":"SS-22","type":"story","epicId":"EP-6","title":"Implement order confirmation email dispatch","userStory":"As a guest shopper, I want a confirmation email sent within 30 seconds of my order being placed so that I immediately have a record of my purchase.","description":"After successful order creation in SS-18, enqueue an email job that sends the confirmation email using the coded template (SS-20). Use the existing transactional email provider (see assumptions). The job must complete and the email must be dispatched within 30 seconds of order creation. Log send success/failure.","acceptanceCriteria":[{"given":"An order is successfully created","when":"The order creation endpoint returns 201","then":"A confirmation email job is enqueued and dispatched within 30 seconds"},{"given":"The email dispatch fails","when":"The job fails after retries","then":"The failure is logged with the order ID and an alert is triggered — order creation is not rolled back"}],"storyPoints":3,"skillArea":"backend","priority":"high","blockedBy":["SS-18","SS-20"],"blocks":[],"sprint":2,"rationale":"Job enqueuing, template wiring, provider integration, and failure logging is roughly 1.5 days."},{"id":"SS-23","type":"story","epicId":"EP-6","title":"Implement shipping notification email dispatch","userStory":"As a guest shopper, I want to receive a shipping notification email with tracking information when my order ships so that I can follow its progress.","description":"Build the shipping notification trigger: when an order's status is updated to 'shipped' (by the fulfilment system or admin), enqueue a job to dispatch the shipping notification email (SS-21) with the carrier and tracking link. The trigger should be event-driven (e.g., order status change event).","acceptanceCriteria":[{"given":"An order status is updated to 'shipped' with a tracking URL","when":"The status change event fires","then":"A shipping notification email is sent to the guest's email address with the correct tracking link"},{"given":"An order status update to 'shipped' is missing a tracking URL","when":"The job processes","then":"The job fails gracefully, logs a warning, and does not send a malformed email"}],"storyPoints":3,"skillArea":"backend","priority":"medium","blockedBy":["SS-18","SS-21"],"blocks":[],"sprint":3,"rationale":"Event listener, job dispatch, and edge case handling for missing tracking data is approximately 1.5 days."},{"id":"SS-24","type":"story","epicId":"EP-7","title":"Mobile responsiveness audit and remediation for guest checkout","userStory":"As a guest shopper on a mobile device, I want all checkout steps to be fully usable on iOS Safari and Android Chrome so that I can complete my purchase from my phone.","description":"Conduct a structured review of all guest checkout screens (entry page, email, address, payment, confirmation) on iOS Safari 16+ and Android Chrome 110+. Identify any touch targets under 44px, layout overflow issues, or form usability problems. Remediate all findings. This ticket can only begin once all checkout screens are implemented.","acceptanceCriteria":[{"given":"All guest checkout screens are implemented","when":"Tested on iOS Safari and Android Chrome at 375px and 390px viewport widths","then":"All interactive elements meet 44px minimum touch target and no horizontal overflow is present on any screen"},{"given":"The payment form is tested on mobile","when":"The Stripe Elements card field is focused","then":"The native keyboard does not obscure the active input field"}],"storyPoints":5,"skillArea":"frontend","priority":"high","blockedBy":["SS-13","SS-14","SS-11","SS-9","SS-2","SS-19"],"blocks":["SS-25"],"sprint":3,"rationale":"Cross-device testing and remediation across 6 screens with real devices or reliable emulators is approximately 2.5 days."},{"id":"SS-25","type":"story","epicId":"EP-7","title":"Performance audit for checkout LCP under 2 seconds","userStory":"As a shopper on a 4G connection, I want checkout pages to load in under 2 seconds LCP so that I don't abandon the flow due to slow loading.","description":"Measure LCP on each guest checkout page using Lighthouse in mobile-throttled (4G) mode. Identify and fix any render-blocking resources, unoptimised images, or large JavaScript bundles. Target is sub-2-second LCP on all pages. Apply SSR or static generation where appropriate.","acceptanceCriteria":[{"given":"All checkout pages are implemented","when":"Measured with Lighthouse on simulated 4G throttling","then":"LCP is under 2000ms on every guest checkout page"},{"given":"A performance regression is identified","when":"The root cause is addressed","then":"A re-run of Lighthouse confirms LCP remains under 2 seconds"}],"storyPoints":5,"skillArea":"frontend","priority":"high","blockedBy":["SS-24"],"blocks":[],"sprint":3,"rationale":"Profiling, identifying bottlenecks across multiple pages, and implementing fixes typically takes 2.5 days."},{"id":"SS-26","type":"story","epicId":"EP-8","title":"Instrument checkout funnel analytics events","userStory":"As a product analyst, I want funnel events tracked at each step of the guest checkout so that we can measure cart-started → order-placed conversion and identify drop-off points.","description":"Add analytics event calls at each key step: checkout_entry_viewed, guest_checkout_started, email_step_completed, address_step_completed, payment_step_viewed, payment_attempt, payment_failed, order_placed. Events should include a session ID (anonymised) and cart value. Use the existing analytics library.","acceptanceCriteria":[{"given":"A shopper completes any guest checkout step","when":"The step completion is confirmed","then":"The corresponding analytics event fires with the correct properties (step name, anonymised session ID, cart value)"},{"given":"An order is placed successfully","when":"The confirmation page loads","then":"An order_placed event fires with order value and order ID"},{"given":"A payment fails","when":"Stripe returns an error","then":"A payment_failed event fires with the Stripe decline code (no PAN)"}],"storyPoints":3,"skillArea":"fullstack","priority":"medium","blockedBy":["SS-19"],"blocks":[],"sprint":3,"rationale":"Adding instrumentation calls across an already-built flow with existing analytics infra is roughly 1.5 days."},{"id":"SS-27","type":"story","epicId":"EP-8","title":"QA end-to-end guest checkout test suite","userStory":"As a QA engineer, I want a comprehensive end-to-end test suite covering the guest checkout happy path and key failure scenarios so that regressions are caught before release.","description":"Write automated end-to-end tests (e.g., Playwright or Cypress) covering: happy path card payment, happy path Apple Pay (mocked), address validation failure, payment decline (under 3 retries), third-retry cart reset, and cart timeout. Use Stripe's test card numbers. Run the suite in CI on every pull request to the main branch.","acceptanceCriteria":[{"given":"The E2E test suite is written","when":"Run against a staging environment with Stripe in test mode","then":"All tests pass, covering happy path and the five failure scenarios listed"},{"given":"A pull request is opened to main","when":"CI triggers","then":"The E2E suite runs automatically and a failing test blocks the merge"}],"storyPoints":8,"skillArea":"qa","priority":"high","blockedBy":["SS-19","SS-15","SS-8","SS-14"],"blocks":[],"sprint":3,"rationale":"Writing reliable E2E tests for a multi-step, payment-integrated checkout flow with 6+ scenarios is approximately 4 days."},{"id":"SS-28","type":"story","epicId":"EP-8","title":"Configure Stripe webhook endpoint in production infrastructure","userStory":"As an infrastructure engineer, I want the Stripe webhook endpoint deployed, secured, and monitored in production so that payment events are reliably received and audited.","description":"Provision the webhook endpoint URL in the Stripe dashboard for both staging and production environments. Configure the Stripe signing secret as an environment variable. Set up an alert if webhook delivery fails repeatedly (Stripe provides failed delivery notifications). Ensure the endpoint is excluded from general rate limiting that could block Stripe.","acceptanceCriteria":[{"given":"The Stripe webhook is configured in both environments","when":"A test event is sent from the Stripe dashboard","then":"The event is received, signature is validated, and the audit log entry is written"},{"given":"Stripe marks a webhook delivery as failed","when":"The failure threshold is exceeded","then":"An alert is triggered to the on-call channel"}],"storyPoints":2,"skillArea":"infra","priority":"high","blockedBy":["SS-16"],"blocks":[],"sprint":2,"rationale":"Webhook registration, secret management, and alert configuration is approximately one day of infra work."}],"totalPoints":109,"recommendedSprints":3,"assumptions":["The platform already has an existing transactional email provider (e.g., SendGrid, Postmark) configured — SS-22 and SS-23 build on top of it rather than selecting and integrating a new provider.","The team already operates a job/queue system (e.g., Sidekiq, BullMQ) for async work; email dispatch jobs will use this infrastructure.","A specific US postal validation API vendor (e.g., SmartyStreets, USPS web tools) will be selected and API credentials obtained before SS-10 begins; the ticket assumes credentials are available.","The existing cart implementation is session/cookie-based and can be extended to support guest sessions without a complete rewrite.","Stripe has already been set up in the Stripe dashboard with the relevant account and the Stripe publishable/secret keys are available in the environment.","Apple Pay requires HTTPS and a verified domain registration with Apple; it is assumed the production domain is already registered or can be registered before launch.","The fulfillment/admin system that updates order status to 'shipped' can emit an event or call a webhook that SS-23 can subscribe to.","The existing analytics library (e.g., Segment, Google Analytics 4 custom events) is already instrumented site-wide and can accept custom events without additional SDK setup.","Redis or an equivalent low-latency store is available if the team chooses to layer session caching on top of the database-backed guest session.","'Estimated delivery window' in the confirmation email is a static copy string (e.g., '5-7 business days') for v1, not a dynamically computed carrier estimate."],"risks":["Stripe Elements and the Payment Request Button (Apple Pay / Google Pay) have strict HTTPS and domain verification requirements. Any misconfiguration of the domain association file for Apple Pay will silently prevent the button from appearing — allocate time for domain verification early.","Cross-client email rendering, especially in Outlook (which uses Word's rendering engine), is notoriously brittle. If the design team or engineers do not have access to Litmus or Email on Acid, testing coverage may be incomplete and rendering bugs could reach production.","Address validation API reliability varies by vendor. A degraded or slow postal API could block checkout progression if graceful degradation (SS-10) is not robustly implemented — this must be treated as a first-class requirement, not an afterthought.","The 30-second order confirmation email SLA depends on the reliability of the async job queue. If the queue is under load or a worker crashes, emails may be delayed or lost. An alerting strategy and retry policy must be in place before launch.","The Stripe PaymentIntent manual-capture flow requires that capture happens within 7 days of authorisation; if order creation is delayed (e.g., queue backup), funds may be released. Monitoring for uncaptured intents older than 6 days should be added.","Cart inactivity timeout requires a reliable last-activity timestamp being updated on every checkout API call. If any endpoint forgets to update the timestamp, shoppers may be unexpectedly expired mid-checkout — this should be enforced via middleware rather than per-endpoint logic.","Sprint velocity risk: this backlog totals approximately 104 story points across design, frontend, backend, infra, and QA. At 44 points per sprint, this is roughly 2.5 sprints. Concurrent design and backend work in sprint 1 is essential to avoid blocking frontend tickets in sprint 2.","PCI DSS compliance requires that no raw card data passes through our servers. A code review gate should be established specifically for the payment integration to catch any accidental logging or transmission of card fields before the code reaches production."]},"sprintPlans":[{"sprintNumber":1,"ticketIds":["SS-1","SS-2","SS-3","SS-6","SS-7","SS-10","SS-11","SS-12","SS-13","SS-16"],"totalPoints":44,"capacityPoints":44,"utilizationPct":100,"skillBreakdown":{"design":8,"fullstack":8,"backend":20,"frontend":8},"criticalPathIds":["SS-6","SS-7","SS-12","SS-16"],"warnings":["Sprint very tight (> 95%)"]},{"sprintNumber":2,"ticketIds":["SS-4","SS-5","SS-8","SS-9","SS-14","SS-15","SS-17","SS-18","SS-19","SS-20","SS-22","SS-28"],"totalPoints":39,"capacityPoints":44,"utilizationPct":89,"skillBreakdown":{"design":5,"fullstack":8,"frontend":8,"backend":16,"infra":2},"criticalPathIds":["SS-18","SS-19"],"warnings":[]},{"sprintNumber":3,"ticketIds":["SS-21","SS-23","SS-24","SS-25","SS-26","SS-27"],"totalPoints":26,"capacityPoints":44,"utilizationPct":59,"skillBreakdown":{"frontend":12,"backend":3,"fullstack":3,"qa":8},"criticalPathIds":["SS-24","SS-25"],"warnings":["Sprint underutilized (\u003c 70%)"]}],"dependencyGraph":{"nodes":[{"id":"SS-1","title":"Design checkout entry page (sign-in vs guest CTA)","points":3,"skillArea":"design","sprint":1,"isCriticalPath":false},{"id":"SS-2","title":"Build checkout entry page UI with routing","points":3,"skillArea":"fullstack","sprint":1,"isCriticalPath":false},{"id":"SS-3","title":"Design guest checkout multi-step form","points":5,"skillArea":"design","sprint":1,"isCriticalPath":false},{"id":"SS-4","title":"Design order confirmation page","points":2,"skillArea":"design","sprint":2,"isCriticalPath":false},{"id":"SS-5","title":"Design email templates (confirmation and shipping)","points":3,"skillArea":"design","sprint":2,"isCriticalPath":false},{"id":"SS-6","title":"Define guest session and cart data model","points":2,"skillArea":"backend","sprint":1,"isCriticalPath":true},{"id":"SS-7","title":"Implement guest session creation and persistence","points":5,"skillArea":"backend","sprint":1,"isCriticalPath":true},{"id":"SS-8","title":"Implement cart inactivity timeout UI and recovery flow","points":3,"skillArea":"fullstack","sprint":2,"isCriticalPath":false},{"id":"SS-9","title":"Build email capture step","points":2,"skillArea":"fullstack","sprint":2,"isCriticalPath":false},{"id":"SS-10","title":"Integrate postal address validation API","points":5,"skillArea":"backend","sprint":1,"isCriticalPath":false},{"id":"SS-11","title":"Build shipping address form with inline validation","points":5,"skillArea":"fullstack","sprint":1,"isCriticalPath":false},{"id":"SS-12","title":"Create Stripe PaymentIntent on session initialisation","points":3,"skillArea":"backend","sprint":1,"isCriticalPath":true},{"id":"SS-13","title":"Implement Stripe Elements payment form","points":8,"skillArea":"frontend","sprint":1,"isCriticalPath":false},{"id":"SS-14","title":"Implement Apple Pay and Google Pay via Stripe Payment Request Button","points":5,"skillArea":"frontend","sprint":2,"isCriticalPath":false},{"id":"SS-15","title":"Enforce payment retry limit and cart reset","points":3,"skillArea":"backend","sprint":2,"isCriticalPath":false},{"id":"SS-16","title":"Log payment events for audit (without PAN)","points":5,"skillArea":"backend","sprint":1,"isCriticalPath":true},{"id":"SS-17","title":"Define order data model for guest orders","points":2,"skillArea":"backend","sprint":2,"isCriticalPath":false},{"id":"SS-18","title":"Implement idempotent order creation endpoint","points":8,"skillArea":"backend","sprint":2,"isCriticalPath":true},{"id":"SS-19","title":"Build order confirmation page","points":3,"skillArea":"fullstack","sprint":2,"isCriticalPath":true},{"id":"SS-20","title":"Code order confirmation email template","points":3,"skillArea":"frontend","sprint":2,"isCriticalPath":false},{"id":"SS-21","title":"Code shipping notification email template","points":2,"skillArea":"frontend","sprint":3,"isCriticalPath":false},{"id":"SS-22","title":"Implement order confirmation email dispatch","points":3,"skillArea":"backend","sprint":2,"isCriticalPath":false},{"id":"SS-23","title":"Implement shipping notification email dispatch","points":3,"skillArea":"backend","sprint":3,"isCriticalPath":false},{"id":"SS-24","title":"Mobile responsiveness audit and remediation for guest checkout","points":5,"skillArea":"frontend","sprint":3,"isCriticalPath":true},{"id":"SS-25","title":"Performance audit for checkout LCP under 2 seconds","points":5,"skillArea":"frontend","sprint":3,"isCriticalPath":true},{"id":"SS-26","title":"Instrument checkout funnel analytics events","points":3,"skillArea":"fullstack","sprint":3,"isCriticalPath":false},{"id":"SS-27","title":"QA end-to-end guest checkout test suite","points":8,"skillArea":"qa","sprint":3,"isCriticalPath":false},{"id":"SS-28","title":"Configure Stripe webhook endpoint in production infrastructure","points":2,"skillArea":"infra","sprint":2,"isCriticalPath":false}],"edges":[{"from":"SS-1","to":"SS-2"},{"from":"SS-7","to":"SS-2"},{"from":"SS-6","to":"SS-7"},{"from":"SS-7","to":"SS-8"},{"from":"SS-3","to":"SS-8"},{"from":"SS-7","to":"SS-9"},{"from":"SS-3","to":"SS-9"},{"from":"SS-6","to":"SS-10"},{"from":"SS-10","to":"SS-11"},{"from":"SS-3","to":"SS-11"},{"from":"SS-7","to":"SS-11"},{"from":"SS-7","to":"SS-12"},{"from":"SS-12","to":"SS-13"},{"from":"SS-3","to":"SS-13"},{"from":"SS-13","to":"SS-14"},{"from":"SS-7","to":"SS-15"},{"from":"SS-12","to":"SS-15"},{"from":"SS-12","to":"SS-16"},{"from":"SS-6","to":"SS-17"},{"from":"SS-17","to":"SS-18"},{"from":"SS-15","to":"SS-18"},{"from":"SS-16","to":"SS-18"},{"from":"SS-18","to":"SS-19"},{"from":"SS-4","to":"SS-19"},{"from":"SS-5","to":"SS-20"},{"from":"SS-5","to":"SS-21"},{"from":"SS-18","to":"SS-22"},{"from":"SS-20","to":"SS-22"},{"from":"SS-18","to":"SS-23"},{"from":"SS-21","to":"SS-23"},{"from":"SS-13","to":"SS-24"},{"from":"SS-14","to":"SS-24"},{"from":"SS-11","to":"SS-24"},{"from":"SS-9","to":"SS-24"},{"from":"SS-2","to":"SS-24"},{"from":"SS-19","to":"SS-24"},{"from":"SS-24","to":"SS-25"},{"from":"SS-19","to":"SS-26"},{"from":"SS-19","to":"SS-27"},{"from":"SS-15","to":"SS-27"},{"from":"SS-8","to":"SS-27"},{"from":"SS-14","to":"SS-27"},{"from":"SS-16","to":"SS-28"}],"criticalPath":["SS-6","SS-7","SS-12","SS-16","SS-18","SS-19","SS-24","SS-25"]},"generatedAt":"2026-04-08T16:16:19.055Z","version":"0.1.0"};
+</script>
+
+<header class="header">
+  <div class="header-inner">
+    <div>
+      <div class="brand">spec-sprint</div>
+      <h1 class="title" id="hdr-title">Sprint Plan</h1>
+      <div class="subtitle" id="hdr-subtitle"></div>
+    </div>
+    <div class="stats" id="hdr-stats"></div>
+  </div>
+</header>
+
+<div class="container">
+  <div id="summary-section"></div>
+  <div id="warnings-section"></div>
+  <div id="ar-section"></div>
+  <h2 style="margin:8px 0 16px;font-size:14px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;">Sprint overview</h2>
+  <div id="sprint-overview" class="sprint-overview"></div>
+  <div id="graph-section"></div>
+  <h2 style="margin:24px 0 16px;font-size:14px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;">Sprints</h2>
+  <div id="sprint-sections"></div>
+  <div id="footer-section" class="footer"></div>
+</div>
+
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal" id="modal" onclick="event.stopPropagation()"></div>
+</div>
+
+<script>
+(function() {
+  'use strict';
+
+  const SKILL_COLORS = {
+    frontend: '#8b5cf6',
+    backend: '#3b82f6',
+    fullstack: '#06b6d4',
+    data: '#f59e0b',
+    infra: '#6b7280',
+    qa: '#10b981',
+    design: '#ec4899',
+  };
+
+  function el(tag, attrs, ...children) {
+    const e = document.createElement(tag);
+    if (attrs) {
+      for (const k in attrs) {
+        if (k === 'class') e.className = attrs[k];
+        else if (k === 'html') e.innerHTML = attrs[k];
+        else if (k.startsWith('on')) e.addEventListener(k.slice(2), attrs[k]);
+        else e.setAttribute(k, attrs[k]);
+      }
+    }
+    for (const c of children) {
+      if (c == null) continue;
+      if (typeof c === 'string' || typeof c === 'number') e.appendChild(document.createTextNode(String(c)));
+      else e.appendChild(c);
+    }
+    return e;
+  }
+
+  function svgEl(tag, attrs) {
+    const e = document.createElementNS('http://www.w3.org/2000/svg', tag);
+    if (attrs) for (const k in attrs) e.setAttribute(k, attrs[k]);
+    return e;
+  }
+
+  function ptsClass(p) {
+    if (p <= 3) return 'pts-low';
+    if (p === 5) return 'pts-mid';
+    return 'pts-high';
+  }
+
+  function utilColor(pct) {
+    if (pct < 70) return '#f59e0b';
+    if (pct > 95) return '#ef4444';
+    return '#22c55e';
+  }
+
+  function truncate(s, n) {
+    if (!s) return '';
+    return s.length > n ? s.slice(0, n) + '...' : s;
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, c => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[c]));
+  }
+
+  // ---------- Render functions ----------
+  function renderHeader(d) {
+    const cfg = d.config;
+    const parts = [];
+    if (cfg.teamName) parts.push(cfg.teamName);
+    if (cfg.sprintName) parts.push(cfg.sprintName);
+    document.getElementById('hdr-title').textContent =
+      parts.length ? parts.join(' • ') : 'Sprint Plan';
+    const date = new Date(d.generatedAt).toLocaleString();
+    document.getElementById('hdr-subtitle').textContent =
+      'Generated ' + date + ' by spec-sprint v' + d.version;
+
+    const stats = document.getElementById('hdr-stats');
+    const ticketCount = d.decomposition.tickets.length;
+    const totalPoints = d.decomposition.totalPoints;
+    const sprintCount = d.sprintPlans.length;
+
+    [
+      [ticketCount, 'Tickets'],
+      [totalPoints, 'Points'],
+      [sprintCount, 'Sprints'],
+      [cfg.teamSize + ' @ ' + cfg.velocity, 'Team / Velocity'],
+    ].forEach(([num, label]) => {
+      const s = el('div', { class: 'stat' },
+        el('div', { class: 'stat-num' }, String(num)),
+        el('div', { class: 'stat-label' }, label),
+      );
+      stats.appendChild(s);
+    });
+  }
+
+  function renderSummary(d) {
+    const root = document.getElementById('summary-section');
+    const card = el('div', { class: 'card' },
+      el('h2', null, 'Spec summary'),
+      el('div', { class: 'spec-summary' }, d.decomposition.specSummary || '(no summary)'),
+    );
+    const toggle = el('span', { class: 'spec-toggle' }, 'View full spec →');
+    const full = el('div', { class: 'spec-full' }, d.specText);
+    toggle.addEventListener('click', () => {
+      full.classList.toggle('open');
+      toggle.textContent = full.classList.contains('open') ? 'Hide full spec ↑' : 'View full spec →';
+    });
+    card.appendChild(toggle);
+    card.appendChild(full);
+    root.appendChild(card);
+  }
+
+  function renderWarnings(d) {
+    const root = document.getElementById('warnings-section');
+    const all = [];
+    d.sprintPlans.forEach(p => {
+      p.warnings.forEach(w => all.push({ sprint: p.sprintNumber, text: w }));
+    });
+    if (!all.length) return;
+    const card = el('div', { class: 'card warnings' });
+    card.appendChild(el('h2', null, '⚠ Warnings (' + all.length + ')'));
+    all.forEach((w, i) => {
+      const row = el('div', { class: 'warning-row' },
+        el('div', null, 'Sprint ' + w.sprint + ': ' + w.text),
+      );
+      const x = el('button', { class: 'warning-dismiss', title: 'Dismiss' }, '×');
+      x.addEventListener('click', () => row.remove());
+      row.appendChild(x);
+      card.appendChild(row);
+    });
+    root.appendChild(card);
+  }
+
+  function renderAssumptionsRisks(d) {
+    const root = document.getElementById('ar-section');
+    const a = d.decomposition.assumptions || [];
+    const r = d.decomposition.risks || [];
+    if (!a.length && !r.length) return;
+
+    function makeCard(cls, title, items) {
+      const list = el('ul', { class: 'ar-list' });
+      items.forEach(it => list.appendChild(el('li', null, it)));
+      const header = el('div', { class: 'ar-header' },
+        el('span', null, title + ' (' + items.length + ')'),
+        el('span', null, '▾'),
+      );
+      header.addEventListener('click', () => list.classList.toggle('open'));
+      return el('div', { class: 'ar-card ' + cls }, header, list);
+    }
+
+    const grid = el('div', { class: 'ar-grid' });
+    grid.appendChild(makeCard('assumptions', 'Assumptions', a));
+    grid.appendChild(makeCard('risks', 'Risks', r));
+    root.appendChild(grid);
+  }
+
+  function renderSprintOverview(d) {
+    const root = document.getElementById('sprint-overview');
+    d.sprintPlans.forEach(p => {
+      const card = el('div', { class: 'sprint-card' });
+      const hdr = el('div', { class: 'sprint-card-header' },
+        el('div', { class: 'sprint-card-title' }, 'Sprint ' + p.sprintNumber),
+      );
+      if (p.warnings.length) {
+        hdr.appendChild(el('span', { class: 'warn-badge' }, String(p.warnings.length)));
+      }
+      card.appendChild(hdr);
+      const bar = el('div', { class: 'util-bar' });
+      const fill = el('div', { class: 'util-fill' });
+      fill.style.width = Math.min(100, p.utilizationPct) + '%';
+      fill.style.background = utilColor(p.utilizationPct);
+      bar.appendChild(fill);
+      card.appendChild(bar);
+      card.appendChild(el('div', { class: 'util-text' },
+        p.totalPoints + ' / ' + p.capacityPoints + ' pts (' + p.utilizationPct + '%)'));
+      const skills = el('div', { class: 'skill-row' });
+      Object.keys(p.skillBreakdown).forEach(s => {
+        const span = el('span', { class: 'skill-dot' }, s + ': ' + p.skillBreakdown[s]);
+        span.style.setProperty('--c', SKILL_COLORS[s] || '#888');
+        skills.appendChild(span);
+      });
+      card.appendChild(skills);
+      card.addEventListener('click', () => {
+        const t = document.getElementById('sprint-sec-' + p.sprintNumber);
+        if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+      root.appendChild(card);
+    });
+  }
+
+  // ---------- Dependency Graph (column per sprint) ----------
+  function renderDependencyGraph(d) {
+    const root = document.getElementById('graph-section');
+    const graph = d.dependencyGraph;
+    const tickets = d.decomposition.tickets;
+    const byId = {};
+    tickets.forEach(t => byId[t.id] = t);
+
+    const card = el('div', { class: 'card graph-card' });
+    card.appendChild(el('h2', null, 'Dependency graph'));
+    const cpTitles = graph.criticalPath.map(id => id).join(' → ');
+    const cpPts = graph.criticalPath.reduce((s, id) => s + (byId[id]?.storyPoints || 0), 0);
+    card.appendChild(el('div', { class: 'graph-subtitle' },
+      graph.criticalPath.length
+        ? 'Critical path: ' + cpTitles + ' (' + cpPts + ' pts minimum)'
+        : 'No dependencies between tickets.'));
+
+    // Group nodes by sprint
+    const sprintNums = [...new Set(graph.nodes.map(n => n.sprint).filter(x => x != null))].sort((a, b) => a - b);
+    const hasUnassigned = graph.nodes.some(n => n.sprint == null);
+    const cols = sprintNums.map(s => ({ key: s, label: 'Sprint ' + s, nodes: [] }));
+    if (hasUnassigned) cols.push({ key: null, label: 'Unassigned', nodes: [] });
+
+    graph.nodes.forEach(n => {
+      const c = cols.find(c => c.key === n.sprint);
+      if (c) c.nodes.push(n);
+    });
+    cols.forEach(c => {
+      c.nodes.sort((a, b) => {
+        if (a.isCriticalPath !== b.isCriticalPath) return a.isCriticalPath ? -1 : 1;
+        return b.points - a.points;
+      });
+    });
+
+    const NODE_W = 140;
+    const NODE_H = 48;
+    const COL_GAP = 60;
+    const ROW_GAP = 16;
+    const MARGIN_X = 30;
+    const MARGIN_TOP = 40;
+
+    const colCount = Math.max(1, cols.length);
+    const maxRows = Math.max(1, ...cols.map(c => c.nodes.length));
+    const width = MARGIN_X * 2 + colCount * NODE_W + (colCount - 1) * COL_GAP;
+    const height = MARGIN_TOP + maxRows * (NODE_H + ROW_GAP) + 30;
+
+    const wrap = el('div', { class: 'graph-svg-wrap' });
+    const svg = svgEl('svg', {
+      class: 'dep-graph',
+      width: String(width),
+      height: String(height),
+      viewBox: '0 0 ' + width + ' ' + height,
+    });
+
+    // arrowhead defs
+    const defs = svgEl('defs');
+    [['arrow', '#6366f1', '0.6'], ['arrow-cp', '#ef4444', '0.85']].forEach(([id, color, op]) => {
+      const m = svgEl('marker', {
+        id, viewBox: '0 0 10 10', refX: '8', refY: '5',
+        markerWidth: '8', markerHeight: '8', orient: 'auto-start-reverse',
+      });
+      const p = svgEl('path', { d: 'M 0 0 L 10 5 L 0 10 z', fill: color, 'fill-opacity': op });
+      m.appendChild(p);
+      defs.appendChild(m);
+    });
+    svg.appendChild(defs);
+
+    // column headers
+    cols.forEach((c, i) => {
+      const x = MARGIN_X + i * (NODE_W + COL_GAP) + NODE_W / 2;
+      const t = svgEl('text', { class: 'col-header', x: String(x), y: '20', 'text-anchor': 'middle' });
+      t.textContent = c.label;
+      svg.appendChild(t);
+    });
+
+    // node positions
+    const positions = {};
+    cols.forEach((c, ci) => {
+      c.nodes.forEach((n, ri) => {
+        const x = MARGIN_X + ci * (NODE_W + COL_GAP);
+        const y = MARGIN_TOP + ri * (NODE_H + ROW_GAP);
+        positions[n.id] = { x, y, w: NODE_W, h: NODE_H, node: n };
+      });
+    });
+
+    // edges
+    const edgeEls = [];
+    const cpSet = new Set(graph.criticalPath);
+    function isCpEdge(from, to) {
+      const i = graph.criticalPath.indexOf(from);
+      return i >= 0 && graph.criticalPath[i + 1] === to;
+    }
+    graph.edges.forEach(e => {
+      const a = positions[e.from];
+      const b = positions[e.to];
+      if (!a || !b) return;
+      const x1 = a.x + a.w;
+      const y1 = a.y + a.h / 2;
+      const x2 = b.x;
+      const y2 = b.y + b.h / 2;
+      const dx = Math.max(40, (x2 - x1) / 2);
+      const cp = isCpEdge(e.from, e.to);
+      const path = svgEl('path', {
+        d: 'M ' + x1 + ' ' + y1 + ' C ' + (x1 + dx) + ' ' + y1 + ', ' + (x2 - dx) + ' ' + y2 + ', ' + x2 + ' ' + y2,
+        fill: 'none',
+        stroke: cp ? '#ef4444' : '#6366f1',
+        'stroke-opacity': cp ? '0.8' : '0.6',
+        'stroke-width': cp ? '2' : '1.2',
+        'marker-end': 'url(#' + (cp ? 'arrow-cp' : 'arrow') + ')',
+        class: 'edge',
+        'data-from': e.from,
+        'data-to': e.to,
+      });
+      svg.appendChild(path);
+      edgeEls.push(path);
+    });
+
+    // nodes
+    const nodeEls = [];
+    Object.values(positions).forEach(p => {
+      const n = p.node;
+      const color = SKILL_COLORS[n.skillArea] || '#888';
+      const g = svgEl('g', { 'data-id': n.id, class: 'node-group' });
+      const rect = svgEl('rect', {
+        class: 'node-rect',
+        x: String(p.x),
+        y: String(p.y),
+        width: String(p.w),
+        height: String(p.h),
+        rx: '6',
+        fill: color,
+        'fill-opacity': '0.2',
+        stroke: n.isCriticalPath ? '#ef4444' : color,
+        'stroke-width': n.isCriticalPath ? '2' : '1',
+      });
+      g.appendChild(rect);
+      const idText = svgEl('text', {
+        class: 'node-text',
+        x: String(p.x + 8),
+        y: String(p.y + 18),
+      });
+      idText.textContent = n.id + ' · ' + n.points + 'pt';
+      g.appendChild(idText);
+      const titleText = svgEl('text', {
+        class: 'node-title-text',
+        x: String(p.x + 8),
+        y: String(p.y + 34),
+      });
+      titleText.textContent = truncate(n.title, 18);
+      g.appendChild(titleText);
+
+      g.addEventListener('mouseenter', () => highlightNode(n.id));
+      g.addEventListener('mouseleave', () => clearHighlight());
+      g.addEventListener('click', (ev) => {
+        ev.stopPropagation();
+        openTicketModal(n.id);
+      });
+
+      svg.appendChild(g);
+      nodeEls.push(g);
+    });
+
+    function highlightNode(id) {
+      const connected = new Set([id]);
+      graph.edges.forEach(e => {
+        if (e.from === id) connected.add(e.to);
+        if (e.to === id) connected.add(e.from);
+      });
+      nodeEls.forEach(g => {
+        if (connected.has(g.getAttribute('data-id'))) g.classList.remove('dim');
+        else g.classList.add('dim');
+      });
+      edgeEls.forEach(p => {
+        if (p.getAttribute('data-from') === id || p.getAttribute('data-to') === id) {
+          p.classList.remove('dim');
+        } else {
+          p.classList.add('dim');
+        }
+      });
+    }
+    function clearHighlight() {
+      nodeEls.forEach(g => g.classList.remove('dim'));
+      edgeEls.forEach(p => p.classList.remove('dim'));
+    }
+
+    svg.addEventListener('click', clearHighlight);
+    wrap.appendChild(svg);
+    card.appendChild(wrap);
+    root.appendChild(card);
+  }
+
+  // ---------- Sprint sections (tables) ----------
+  function renderSprintSections(d) {
+    const root = document.getElementById('sprint-sections');
+    const byId = {};
+    d.decomposition.tickets.forEach(t => byId[t.id] = t);
+
+    d.sprintPlans.forEach(p => {
+      const sec = el('div', { class: 'sprint-section', id: 'sprint-sec-' + p.sprintNumber });
+
+      const fillColor = utilColor(p.utilizationPct);
+      const utilBar = el('div', { class: 'util-mini' });
+      const utilFill = el('div', { class: 'util-fill' });
+      utilFill.style.width = Math.min(100, p.utilizationPct) + '%';
+      utilFill.style.background = fillColor;
+      utilBar.appendChild(utilFill);
+
+      const stats = el('div', { class: 'sprint-section-stats' },
+        el('span', null, p.totalPoints + ' / ' + p.capacityPoints + ' pts (' + p.utilizationPct + '%)'),
+        utilBar,
+      );
+      const header = el('div', { class: 'sprint-section-header' },
+        el('div', { class: 'sprint-section-title' }, 'Sprint ' + p.sprintNumber),
+        stats,
+      );
+      sec.appendChild(header);
+
+      const meta = el('div', { class: 'sprint-meta' });
+      Object.keys(p.skillBreakdown).forEach(s => {
+        const span = el('span', null, s.charAt(0).toUpperCase() + s.slice(1) + ': ' + p.skillBreakdown[s] + 'pts');
+        span.style.color = SKILL_COLORS[s] || 'var(--text-muted)';
+        meta.appendChild(span);
+      });
+      sec.appendChild(meta);
+
+      if (p.warnings.length) {
+        const w = el('div', { class: 'sprint-warnings' });
+        p.warnings.forEach(msg => w.appendChild(el('div', null, '⚠ ' + msg)));
+        sec.appendChild(w);
+      }
+
+      const body = el('div', { class: 'sprint-body' });
+
+      const table = el('table', { class: 'tickets' });
+      const thead = el('thead', null,
+        el('tr', null,
+          el('th', null, 'ID'),
+          el('th', null, 'Title'),
+          el('th', null, 'User Story'),
+          el('th', null, 'Points'),
+          el('th', null, 'Skill'),
+          el('th', null, 'Priority'),
+          el('th', null, 'Blocked By'),
+          el('th', null, 'Copy'),
+        ));
+      table.appendChild(thead);
+      const tbody = el('tbody');
+
+      p.ticketIds.forEach(id => {
+        const t = byId[id];
+        if (!t) return;
+        const tr = el('tr');
+
+        const idBadge = el('span', { class: 'badge id-badge' }, t.id);
+        idBadge.addEventListener('click', () => openTicketModal(t.id));
+        tr.appendChild(el('td', null, idBadge));
+
+        const titleCell = el('td', { class: 'title-cell' }, t.title);
+        titleCell.addEventListener('click', () => openTicketModal(t.id));
+        tr.appendChild(titleCell);
+
+        const storyCell = el('td', { class: 'story-cell', title: t.userStory },
+          truncate(t.userStory, 60));
+        storyCell.addEventListener('click', () => openTicketModal(t.id));
+        tr.appendChild(storyCell);
+
+        tr.appendChild(el('td', null,
+          el('span', { class: 'badge pts-badge ' + ptsClass(t.storyPoints) }, String(t.storyPoints))));
+        tr.appendChild(el('td', null,
+          el('span', { class: 'badge skill-badge skill-' + t.skillArea }, t.skillArea)));
+        tr.appendChild(el('td', null,
+          el('span', { class: 'badge pri-badge pri-' + t.priority }, t.priority)));
+
+        const depCell = el('td');
+        if (t.blockedBy.length) {
+          t.blockedBy.forEach(b => {
+            const chip = el('span', { class: 'dep-chip', title: 'Jump to ' + b }, b);
+            chip.addEventListener('click', () => openTicketModal(b));
+            depCell.appendChild(chip);
+          });
+        } else {
+          depCell.textContent = '—';
+          depCell.style.color = 'var(--text-muted)';
+        }
+        tr.appendChild(depCell);
+
+        const copyCell = el('td');
+        const btns = el('div', { class: 'copy-btns' });
+        btns.appendChild(makeCopyBtn('J', 'Copy as Jira', () => formatJira(t)));
+        btns.appendChild(makeCopyBtn('L', 'Copy as Linear', () => formatLinear(t)));
+        btns.appendChild(makeCopyBtn('P', 'Copy as plain text', () => formatPlain(t)));
+        copyCell.appendChild(btns);
+        tr.appendChild(copyCell);
+
+        tbody.appendChild(tr);
+      });
+
+      table.appendChild(tbody);
+      body.appendChild(table);
+
+      // sprint-level copy
+      const footer = el('div', { class: 'sprint-footer-copy' });
+      const ticketObjs = p.ticketIds.map(id => byId[id]).filter(Boolean);
+      footer.appendChild(makeCopyBtnLarge('📋 All tickets — Jira format', () => formatSprintJira(p, ticketObjs)));
+      footer.appendChild(makeCopyBtnLarge('📋 Markdown table', () => formatSprintMarkdown(p, ticketObjs)));
+      footer.appendChild(makeCopyBtnLarge('📋 Slack summary', () => formatSprintSlack(p, ticketObjs, d.dependencyGraph)));
+      body.appendChild(footer);
+
+      sec.appendChild(body);
+
+      header.addEventListener('click', () => body.classList.toggle('collapsed'));
+
+      root.appendChild(sec);
+    });
+  }
+
+  function makeCopyBtn(label, title, getText) {
+    const btn = el('button', { class: 'copy-btn', title }, label);
+    btn.addEventListener('click', (ev) => {
+      ev.stopPropagation();
+      doCopy(btn, getText());
+    });
+    return btn;
+  }
+  function makeCopyBtnLarge(label, getText) {
+    const btn = el('button', { class: 'copy-btn copy-btn-large' }, label);
+    btn.addEventListener('click', () => doCopy(btn, getText()));
+    return btn;
+  }
+
+  function doCopy(btn, text) {
+    copyToClipboard(text).then(ok => {
+      const orig = btn.textContent;
+      btn.textContent = ok ? '✓' : '✗';
+      btn.classList.add(ok ? 'success' : 'error');
+      setTimeout(() => {
+        btn.textContent = orig;
+        btn.classList.remove('success', 'error');
+      }, 1500);
+    });
+  }
+
+  function copyToClipboard(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      return navigator.clipboard.writeText(text).then(() => true).catch(() => fallback(text));
+    }
+    return Promise.resolve(fallback(text));
+  }
+  function fallback(text) {
+    try {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      const ok = document.execCommand('copy');
+      document.body.removeChild(ta);
+      return ok;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  // ---------- Format helpers ----------
+  function acText(ac) {
+    return ac.map(a => '• Given ' + a.given + ', when ' + a.when + ', then ' + a.then).join('\n');
+  }
+  function acLinear(ac) {
+    return ac.map(a => '- [ ] Given ' + a.given + ', when ' + a.when + ', then ' + a.then).join('\n');
+  }
+  function acNumbered(ac) {
+    return ac.map((a, i) => '  ' + (i + 1) + '. Given ' + a.given + ', when ' + a.when + ', then ' + a.then).join('\n');
+  }
+
+  function formatJira(t) {
+    const lines = [];
+    lines.push(t.title);
+    lines.push('');
+    lines.push('User Story');
+    lines.push(t.userStory);
+    lines.push('');
+    lines.push('Description');
+    lines.push(t.description);
+    lines.push('');
+    lines.push('Acceptance Criteria');
+    lines.push(acText(t.acceptanceCriteria));
+    lines.push('');
+    lines.push('Story Points: ' + t.storyPoints);
+    lines.push('Skill Area: ' + t.skillArea);
+    lines.push('Priority: ' + t.priority);
+    if (t.blockedBy.length) lines.push('Blocked By: ' + t.blockedBy.join(', '));
+    lines.push('Estimate rationale: ' + t.rationale);
+    return lines.join('\n');
+  }
+
+  function formatLinear(t) {
+    const lines = [];
+    lines.push(t.title);
+    lines.push('');
+    lines.push(t.userStory);
+    lines.push('');
+    lines.push('Context');
+    lines.push(t.description);
+    lines.push('');
+    lines.push('Acceptance Criteria');
+    lines.push(acLinear(t.acceptanceCriteria));
+    lines.push('');
+    lines.push('Points: ' + t.storyPoints + '  Area: ' + t.skillArea + '  Priority: ' + t.priority);
+    if (t.blockedBy.length) lines.push('Blocked by: ' + t.blockedBy.join(', '));
+    return lines.join('\n');
+  }
+
+  function formatPlain(t) {
+    const lines = [];
+    lines.push('[' + t.id + '] ' + t.title);
+    lines.push('Story: ' + t.userStory);
+    lines.push('Points: ' + t.storyPoints + ' | Skill: ' + t.skillArea + ' | Priority: ' + t.priority);
+    if (t.blockedBy.length) lines.push('Blocked by: ' + t.blockedBy.join(', '));
+    lines.push('Acceptance Criteria:');
+    lines.push(acNumbered(t.acceptanceCriteria));
+    return lines.join('\n');
+  }
+
+  function formatSprintJira(plan, tickets) {
+    return tickets.map(formatJira).join('\n---\n');
+  }
+
+  function formatSprintMarkdown(plan, tickets) {
+    const lines = [];
+    lines.push('| ID | Title | Points | Skill | Priority | Blocked By |');
+    lines.push('|---|---|---|---|---|---|');
+    tickets.forEach(t => {
+      lines.push('| ' + t.id + ' | ' + t.title + ' | ' + t.storyPoints + ' | ' + t.skillArea + ' | ' + t.priority + ' | ' + (t.blockedBy.length ? t.blockedBy.join(', ') : '—') + ' |');
+    });
+    return lines.join('\n');
+  }
+
+  function formatSprintSlack(plan, tickets, graph) {
+    const lines = [];
+    lines.push('*Sprint ' + plan.sprintNumber + ' Plan* — ' + plan.totalPoints + ' pts / ' + plan.capacityPoints + ' capacity (' + plan.utilizationPct + '%)');
+    lines.push('');
+    tickets.forEach(t => {
+      lines.push('• [' + t.id + '] ' + t.title + ' (' + t.storyPoints + 'pts, ' + t.skillArea + ')');
+    });
+    if (plan.criticalPathIds && plan.criticalPathIds.length) {
+      const titles = plan.criticalPathIds.map(id => {
+        const t = tickets.find(x => x.id === id);
+        return t ? t.title : id;
+      }).join(' → ');
+      lines.push('');
+      lines.push('_Critical path: ' + titles + '_');
+    }
+    if (plan.warnings.length) {
+      lines.push('_⚠ ' + plan.warnings.join(' | ') + '_');
+    }
+    return lines.join('\n');
+  }
+
+  // ---------- Modal ----------
+  function openTicketModal(id) {
+    const data = window.SPEC_SPRINT_DATA;
+    const t = data.decomposition.tickets.find(x => x.id === id);
+    if (!t) return;
+    const modal = document.getElementById('modal');
+    modal.innerHTML = '';
+
+    const epic = data.decomposition.epics.find(e => e.id === t.epicId);
+
+    const head = el('div', { class: 'modal-header' },
+      el('span', { class: 'badge id-badge' }, t.id),
+      el('h3', null, t.title),
+    );
+    const close = el('button', { class: 'modal-close', title: 'Close' }, '×');
+    close.addEventListener('click', closeModal);
+    head.appendChild(close);
+    modal.appendChild(head);
+
+    if (epic) {
+      modal.appendChild(el('div', { class: 'muted', style: 'font-size:12px;margin-bottom:8px;' },
+        epic.id + ' — ' + epic.title));
+    }
+
+    const row = el('div', { class: 'modal-row' });
+    if (t.sprint != null) row.appendChild(el('span', { class: 'badge id-badge' }, 'Sprint ' + t.sprint));
+    row.appendChild(el('span', { class: 'badge pts-badge ' + ptsClass(t.storyPoints) }, t.storyPoints + ' pts'));
+    row.appendChild(el('span', { class: 'badge skill-badge skill-' + t.skillArea }, t.skillArea));
+    row.appendChild(el('span', { class: 'badge pri-badge pri-' + t.priority }, t.priority));
+    modal.appendChild(row);
+
+    modal.appendChild(el('div', { class: 'modal-section' },
+      el('div', { class: 'modal-section-label' }, 'User story'),
+      el('div', { class: 'modal-user-story' }, t.userStory),
+    ));
+    modal.appendChild(el('div', { class: 'modal-section' },
+      el('div', { class: 'modal-section-label' }, 'Description'),
+      el('div', null, t.description),
+    ));
+
+    const acList = el('ol', { class: 'modal-ac' });
+    t.acceptanceCriteria.forEach(a => {
+      acList.appendChild(el('li', null, 'Given ' + a.given + ', when ' + a.when + ', then ' + a.then));
+    });
+    modal.appendChild(el('div', { class: 'modal-section' },
+      el('div', { class: 'modal-section-label' }, 'Acceptance criteria'),
+      acList,
+    ));
+
+    if (t.blockedBy.length) {
+      const chips = el('div');
+      t.blockedBy.forEach(b => {
+        const c = el('span', { class: 'dep-chip' }, b);
+        c.addEventListener('click', () => openTicketModal(b));
+        chips.appendChild(c);
+      });
+      modal.appendChild(el('div', { class: 'modal-section' },
+        el('div', { class: 'modal-section-label' }, 'Blocked by'),
+        chips,
+      ));
+    }
+    if (t.blocks && t.blocks.length) {
+      const chips = el('div');
+      t.blocks.forEach(b => {
+        const c = el('span', { class: 'dep-chip' }, b);
+        c.addEventListener('click', () => openTicketModal(b));
+        chips.appendChild(c);
+      });
+      modal.appendChild(el('div', { class: 'modal-section' },
+        el('div', { class: 'modal-section-label' }, 'Blocks'),
+        chips,
+      ));
+    }
+    if (t.rationale) {
+      modal.appendChild(el('div', { class: 'modal-section' },
+        el('div', { class: 'modal-section-label' }, 'Estimate rationale'),
+        el('div', { class: 'modal-rationale' }, t.rationale),
+      ));
+    }
+
+    const actions = el('div', { class: 'modal-actions' });
+    actions.appendChild(makeCopyBtn('Copy for Jira', 'Copy for Jira', () => formatJira(t)));
+    actions.appendChild(makeCopyBtn('Copy for Linear', 'Copy for Linear', () => formatLinear(t)));
+    actions.appendChild(makeCopyBtn('Copy Plain Text', 'Copy plain text', () => formatPlain(t)));
+    modal.appendChild(actions);
+
+    document.getElementById('modal-overlay').classList.add('open');
+  }
+
+  function closeModal() {
+    document.getElementById('modal-overlay').classList.remove('open');
+  }
+
+  // expose
+  window.openTicketModal = openTicketModal;
+
+  // ---------- Footer ----------
+  function renderFooter(d) {
+    const root = document.getElementById('footer-section');
+    root.appendChild(el('div', null,
+      'Generated by spec-sprint v' + d.version + ' • github.com/YOUR_GITHUB_USERNAME/spec-sprint'));
+    root.appendChild(el('div', null,
+      'Estimates are starting points for team discussion, not commitments.'));
+    root.appendChild(el('div', null, new Date(d.generatedAt).toLocaleString()));
+  }
+
+  // ---------- Boot ----------
+  document.addEventListener('DOMContentLoaded', function () {
+    const data = window.SPEC_SPRINT_DATA;
+    if (!data) {
+      document.body.innerHTML = '<div style="padding:40px;color:#fff">No data</div>';
+      return;
+    }
+    renderHeader(data);
+    renderSummary(data);
+    renderWarnings(data);
+    renderAssumptionsRisks(data);
+    renderSprintOverview(data);
+    renderDependencyGraph(data);
+    renderSprintSections(data);
+    renderFooter(data);
+
+    document.getElementById('modal-overlay').addEventListener('click', function (e) {
+      if (e.target.id === 'modal-overlay') closeModal();
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') closeModal();
+    });
+  });
+})();
+</script>
+</body>
+</html>
