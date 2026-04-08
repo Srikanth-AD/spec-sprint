@@ -39,10 +39,15 @@ Two example specs and the reports they produced are checked into this
 repo. Open the HTML files locally to click around — copy buttons,
 dependency graph hover, ticket modal, and all.
 
-| Spec | Team / Velocity | Output | Result |
+| Spec | Team / Velocity | Markdown (read on GitHub) | HTML (download & open) |
 |---|---|---|---|
-| [`examples/sso-auth.md`](examples/sso-auth.md) | 4 engineers @ 32 pts | [`examples/output/sso-auth.html`](examples/output/sso-auth.html) | 20 tickets · 7 epics · 3 sprints · 77 pts |
-| [`examples/guest-checkout.md`](examples/guest-checkout.md) | 6 engineers @ 44 pts | [`examples/output/guest-checkout.html`](examples/output/guest-checkout.html) | 28 tickets · 8 epics · 3 sprints · 109 pts |
+| [`examples/sso-auth.md`](examples/sso-auth.md) | 4 engineers @ 32 pts | [📄 sso-auth.md](examples/output/sso-auth.md) | [📊 sso-auth.html](examples/output/sso-auth.html) |
+| [`examples/guest-checkout.md`](examples/guest-checkout.md) | 6 engineers @ 44 pts | [📄 guest-checkout.md](examples/output/guest-checkout.md) | [📊 guest-checkout.html](examples/output/guest-checkout.html) |
+
+The Markdown reports render directly on GitHub — click them to read the full
+sprint plan, ticket tables, critical path, and per-ticket acceptance criteria.
+The HTML reports are interactive (dependency graph, copy buttons, ticket modal)
+and need to be downloaded and opened in a browser.
 
 To regenerate them yourself:
 
@@ -57,6 +62,8 @@ spec-sprint generate examples/guest-checkout.md \
   --team-name "Checkout Team" --sprint-name "Q2 Sprint 1" \
   --output examples/output/guest-checkout.html
 ```
+
+For Markdown output, just change the `--output` extension to `.md`.
 
 ## What the report contains
 
@@ -89,7 +96,7 @@ Options:
   --sprint-name <s>   Sprint name, e.g. "Q2 Sprint 1"
   --team-name <s>     Team name, e.g. "Platform Team"
   --skills <list>     Comma-separated skill areas (default: all)
-  -o, --output <p>    Output HTML file path
+  -o, --output <p>    Output file (.html for interactive report, .md for Markdown)
   --no-open           Don't open the report in your browser
 ```
 

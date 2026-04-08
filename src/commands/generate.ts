@@ -11,6 +11,7 @@ import {
   buildDependencyGraph,
 } from '../lib/capacityPlanner.js'
 import { renderReport } from '../lib/renderer.js'
+import { renderMarkdownReport } from '../lib/markdownRenderer.js'
 import { getApiKey, DEFAULT_MODEL, VERSION } from '../lib/config.js'
 import type { Config, ReportData, SkillArea } from '../types.js'
 
@@ -117,7 +118,11 @@ async function runGenerate(spec: string, opts: any): Promise<void> {
     generatedAt: new Date().toISOString(),
     version: VERSION,
   }
-  await renderReport(reportData, outputPath)
+  if (outputPath.toLowerCase().endsWith('.md')) {
+    await renderMarkdownReport(reportData, outputPath)
+  } else {
+    await renderReport(reportData, outputPath)
+  }
   spinner.succeed(`Report written to ${chalk.cyan(outputPath)}`)
 
   printSummary(reportData, outputPath)
